@@ -2135,7 +2135,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDrivers = async () => {
       try {
-        const response = await fetch("http://localhost:8989/api/driver")
+        const response = await fetch("https://panalsbackend-production.up.railway.app/api/driver")
         const data = await response.json()
         if (data.success) {
           setDrivers(data.data)
@@ -2151,7 +2151,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchRecentRides = async () => {
       try {
-        const response = await fetch("http://localhost:8989/api/dashboard/recent-rides")
+        const response = await fetch("https://panalsbackend-production.up.railway.app/api/dashboard/recent-rides")
         const data = await response.json()
         setRecentRides(data)
       } catch (error) {
@@ -2510,7 +2510,7 @@ export default function Dashboard() {
     }
 
     console.log("Initializing socket connection...")
-    const newSocket = io("http://localhost:8989", {
+    const newSocket = io("https://panalsbackend-production.up.railway.app", {
       timeout: 20000,
       reconnection: true,
       reconnectionDelay: 1000,

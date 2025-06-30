@@ -30,7 +30,7 @@ export const useSocket = (room, eventHandlers = {}, options = {}) => {
   useEffect(() => {
     // Create or reuse socket connection
     if (!socketInstance) {
-      const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:8989"
+      const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || "https://panalsbackend-production.up.railway.app"
 
       socketInstance = io(SOCKET_URL, {
         timeout,

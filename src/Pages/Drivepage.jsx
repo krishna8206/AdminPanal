@@ -33,8 +33,8 @@ import {
 import axios from "axios"
 
 // API Base URLs
-const API_BASE_URL = "http://localhost:8989/api/driver"
-const ADMIN_API_URL = "http://localhost:8989/api/admins"
+const API_BASE_URL = "https://panalsbackend-production.up.railway.app/api/driver"
+const ADMIN_API_URL = "https://panalsbackend-production.up.railway.app/api/admins"
 
 export default function DriverManagementDashboard() {
   // Existing States

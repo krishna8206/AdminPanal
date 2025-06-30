@@ -13,26 +13,26 @@ import useRideWebSocket from "../useRideWebSocket/useRideWebSocket";
 // Mock API functions
 const api = {
   getRides: async (status) => {
-    const res = await axios.get("http://localhost:8989/api/rides", {
+    const res = await axios.get("https://panalsbackend-production.up.railway.app/api/rides", {
       params: status ? { status } : {},
     });
     return res.data;
   },
 
   postRide: async (rideData) => {
-    const res = await axios.post("http://localhost:8989/api/rides", rideData);
+    const res = await axios.post("https://panalsbackend-production.up.railway.app/api/rides", rideData);
     return res.data;
   },
 
   // ✅ Add this function for status update
   updateRideStatus: async (rideId, status) => {
-  const res = await axios.put(`http://localhost:8989/api/rides/${rideId}/status`, { status });
+  const res = await axios.put(`https://panalsbackend-production.up.railway.app/api/rides/${rideId}/status`, { status });
   return res.data;
 },
 
   // ✅ Add this if you're calling getRideLogs (optional, based on your UI)
   getRideLogs: async (rideId) => {
-    const res = await axios.get(`http://localhost:8989/api/rides/${rideId}/logs`);
+    const res = await axios.get(`https://panalsbackend-production.up.railway.app/api/rides/${rideId}/logs`);
     return res.data;
   },
 };
@@ -819,7 +819,7 @@ export default function RidesManagement() {
 
 const handleStatusChange = async (rideId, newStatus) => {
   try {
-    const response = await axios.put(`http://localhost:5000/api/rides/${rideId}/status`, {
+    const response = await axios.put(`https://panalsbackend-production.up.railway.app/api/rides/${rideId}/status`, {
       status: newStatus,
     });
 

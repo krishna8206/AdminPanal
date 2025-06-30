@@ -5,7 +5,7 @@ const useRideWebSocket = (onRideStatusUpdate, onChatMessage) => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    const socket = io("http://localhost:8989", {
+    const socket = io("https://panalsbackend-production.up.railway.app", {
       transports: ["websocket"],       // force websocket
       reconnectionAttempts: 5,
       timeout: 10000,

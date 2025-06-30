@@ -50,7 +50,7 @@ export default function Layout() {
     setLoginError("");
     
     try {
-      const response = await axios.post("https://idharudhar-backend-2.onrender.com/api/auth/send-otp", {
+      const response = await axios.post("https://panalsbackend-production.up.railway.app/api/auth/send-otp", {
         email: email
       });
 
@@ -81,7 +81,7 @@ export default function Layout() {
         throw new Error("OTP has expired. Please request a new one.");
       }
       
-      const response = await axios.post("https://idharudhar-backend-2.onrender.com/api/auth/verify-otp", {
+      const response = await axios.post("https://panalsbackend-production.up.railway.app/api/auth/verify-otp", {
         email: email,
         otp: otp
       });
@@ -110,7 +110,7 @@ export default function Layout() {
     setLoginError("");
     
     try {
-      await axios.post("https://idharudhar-backend-2.onrender.com/api/auth/send-otp", {
+      await axios.post("https://panalsbackend-production.up.railway.app/api/auth/send-otp", {
         email: email
       });
 

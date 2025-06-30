@@ -230,15 +230,15 @@ export default function ReportsEarning() {
       })
 
       const [summaryResponse, earningsResponse, driverResponse] = await Promise.all([
-        fetch(`http://localhost:8989/api/reports/summary?${params}`).catch((e) => {
+        fetch(`https://panalsbackend-production.up.railway.app/api/reports/summary?${params}`).catch((e) => {
           console.error("Summary API error:", e)
           return null
         }),
-        fetch(`http://localhost:8989/api/reports/earnings?${params}`).catch((e) => {
+        fetch(`https://panalsbackend-production.up.railway.app/api/reports/earnings?${params}`).catch((e) => {
           console.error("Earnings API error:", e)
           return null
         }),
-        fetch(`http://localhost:8989/api/reports/driver-performance?${params}`).catch((e) => {
+        fetch(`https://panalsbackend-production.up.railway.app/api/reports/driver-performance?${params}`).catch((e) => {
           console.error("Driver API error:", e)
           return null
         }),
@@ -294,7 +294,7 @@ export default function ReportsEarning() {
 
     console.log("🔌 Initializing Socket.IO connection...")
 
-    const newSocket = io("http://localhost:8989", {
+    const newSocket = io("https://panalsbackend-production.up.railway.app", {
       transports: ["websocket", "polling"],
       timeout: 20000,
       reconnection: true,
