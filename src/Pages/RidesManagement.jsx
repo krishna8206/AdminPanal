@@ -26,9 +26,9 @@ const api = {
 
   // ✅ Add this function for status update
   updateRideStatus: async (rideId, status) => {
-  const res = await axios.put(`https://panalsbackend-production.up.railway.app/api/rides/${rideId}/status`, { status });
-  return res.data;
-},
+    const res = await axios.put(`https://panalsbackend-production.up.railway.app/api/rides/${rideId}/status`, { status });
+    return res.data;
+  },
 
   // ✅ Add this if you're calling getRideLogs (optional, based on your UI)
   getRideLogs: async (rideId) => {
@@ -104,7 +104,7 @@ const FilterBar = ({ searchTerm, onSearchChange, statusFilter, onStatusChange, o
         <div className="relative">
           <input
             type="text"
-            placeholder="Search by Ride ID, Rider, Driver or Location"
+            placeholder="Search by Trip ID, Rider, Driver or Location"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full md:w-80 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 pl-10 pr-4 py-2 text-sm text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors duration-300"
@@ -149,9 +149,9 @@ const FilterBar = ({ searchTerm, onSearchChange, statusFilter, onStatusChange, o
 }
 
 // Ride Card Component
-const RideCard = ({ ride, onTrack, onChat, getStatusBadge }) => {
+const RideCard = ({ ride, onTrack, onChat, getStatusBadge, onClick }) => {
   return (
-    <div key={ride._id} className="cursor-pointer rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 transition-all hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-lg">
+    <div key={ride._id} onClick={onClick} className="cursor-pointer rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 transition-all hover:border-gray-300 dark:hover:border-gray-500 hover:shadow-lg">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white">#{ride.driverId}</h3>
         {getStatusBadge(ride.status)}
@@ -239,7 +239,7 @@ const NoResults = ({ searchTerm, onReset }) => {
       <p className="mb-6 text-gray-600 dark:text-gray-400">
         {searchTerm
           ? "Try adjusting your search or filter criteria"
-          : "There are no rides matching the selected status"}
+          : "There are no Trips matching the selected status"}
       </p>
       <button
         onClick={onReset}
@@ -469,7 +469,7 @@ const TrackingModal = ({ isOpen, onClose, ride, activeTab, onTabChange, getStatu
                     <button className="flex-1 rounded-lg bg-blue-600 px-4 py-3 font-medium text-white transition-colors hover:bg-blue-700">
                       Refresh Location
                     </button>
-                   {/* <button
+                    {/* <button
   onClick={() => onStatusChange(ride._id, "completed")}
   className="bg-green-600 hover:bg-green-500 px-4 py-2 rounded text-white"
 >
@@ -521,43 +521,49 @@ export default function RidesManagement() {
   const [refreshing, setRefreshing] = useState(false)
   const [chatMessage, setChatMessage] = useState("")
   const webSocketRef = useRef(null);
-  const [chatMessages, setChatMessages] = useState({}); 
+  const [chatMessages, setChatMessages] = useState({});
   const { showToast, ToastContainer } = useToast()
+  const [showModal, setShowModal] = useState(false);
+
+  const handleRideClick = (ride) => {
+    setSelectedRide(ride);
+    setShowModal(true);
+  }
 
 
- // ✅ Real-time listener
- useEffect(() => {
-  if (!socket) return;
+  // ✅ Real-time listener
+  useEffect(() => {
+    if (!socket) return;
 
-  const handleRideStatusUpdate = ({ rideId, status }) => {
-    setRides((prevRides) => {
-      const updated = Array.isArray(prevRides)
-        ? prevRides.map((ride) =>
+    const handleRideStatusUpdate = ({ rideId, status }) => {
+      setRides((prevRides) => {
+        const updated = Array.isArray(prevRides)
+          ? prevRides.map((ride) =>
             ride._id === rideId ? { ...ride, status } : ride
           )
-        : [];
+          : [];
 
-      // Also update the filteredRides state
-      setFilteredRides(
-        statusFilter === "all"
-          ? updated
-          : updated.filter((ride) => ride.status === statusFilter)
-      );
+        // Also update the filteredRides state
+        setFilteredRides(
+          statusFilter === "all"
+            ? updated
+            : updated.filter((ride) => ride.status === statusFilter)
+        );
 
-      return updated;
-    });
-  };
+        return updated;
+      });
+    };
 
-  socket.on("rideStatusUpdate", handleRideStatusUpdate);
+    socket.on("rideStatusUpdate", handleRideStatusUpdate);
 
-  return () => {
-    socket.off("rideStatusUpdate", handleRideStatusUpdate);
-  };
-}, [socket, statusFilter]);
+    return () => {
+      socket.off("rideStatusUpdate", handleRideStatusUpdate);
+    };
+  }, [socket, statusFilter]);
 
 
 
-  const handleStatusUpdate = (data) => { 
+  const handleStatusUpdate = (data) => {
     setRides((prev) =>
       prev.map((ride) =>
         ride.rideCode === data.rideCode ? { ...ride, status: data.status } : ride
@@ -582,23 +588,23 @@ export default function RidesManagement() {
 
 
   const onStatusChange = async (rideId, newStatus) => {
-  try {
-    await api.updateRideStatus(rideId, newStatus); //  Backend update
+    try {
+      await api.updateRideStatus(rideId, newStatus); //  Backend update
 
-    //  Update UI state
-    setRides((prevRides) =>
-      prevRides.map((ride) =>
-        ride._id === rideId ? { ...ride, status: newStatus } : ride
-      )
-    );
+      //  Update UI state
+      setRides((prevRides) =>
+        prevRides.map((ride) =>
+          ride._id === rideId ? { ...ride, status: newStatus } : ride
+        )
+      );
 
-    setSelectedRide((prev) =>
-      prev && prev._id === rideId ? { ...prev, status: newStatus } : prev
-    );
-  } catch (error) {
-    console.error("Failed to update ride status:", error);
-  }
-};
+      setSelectedRide((prev) =>
+        prev && prev._id === rideId ? { ...prev, status: newStatus } : prev
+      );
+    } catch (error) {
+      console.error("Failed to update ride status:", error);
+    }
+  };
 
 
   // Fetch rides on initial load and when status filter changes
@@ -610,10 +616,10 @@ export default function RidesManagement() {
         setRides(data)
         setFilteredRides(data)
       } catch (error) {
-        console.error("Error fetching rides:", error)
+        console.error("Error fetching trips:", error)
         showToast({
-          title: "Error fetching rides",
-          description: "Could not load ride data. Please try again.",
+          title: "Error fetching trips",
+          description: "Could not load trip data. Please try again.",
           variant: "destructive",
         })
       } finally {
@@ -625,13 +631,13 @@ export default function RidesManagement() {
   }, [statusFilter, showToast])
 
   // Setup WebSocket for real-time updates
- useEffect(() => {
-  const handleWebSocketMessage = (data) => {
-    if (data.type === "location_update") {
-      setRides((prevRides) =>
-        prevRides.map((ride) =>
-          ride.rideCode === data.rideCode
-            ? {
+  useEffect(() => {
+    const handleWebSocketMessage = (data) => {
+      if (data.type === "location_update") {
+        setRides((prevRides) =>
+          prevRides.map((ride) =>
+            ride.rideCode === data.rideCode
+              ? {
                 ...ride,
                 currentLocation: {
                   lat: data.lat,
@@ -643,14 +649,14 @@ export default function RidesManagement() {
                   }),
                 },
               }
-            : ride
+              : ride
+          )
         )
-      )
 
-      if (selectedRide?.rideCode === data.rideCode) {
-        setSelectedRide((prev) =>
-          prev
-            ? {
+        if (selectedRide?.rideCode === data.rideCode) {
+          setSelectedRide((prev) =>
+            prev
+              ? {
                 ...prev,
                 currentLocation: {
                   lat: data.lat,
@@ -662,61 +668,61 @@ export default function RidesManagement() {
                   }),
                 },
               }
-            : null
-        )
+              : null
+          )
+        }
+
+        showToast({
+          title: "Location Updated",
+          description: `trip ${data.rideCode} location has been updated.`,
+        })
       }
 
-      showToast({
-        title: "Location Updated",
-        description: `Ride ${data.rideCode} location has been updated.`,
-      })
-    } 
-    
-    else if (data.type === "status_update") {
-      setRides((prevRides) =>
-        prevRides.map((ride) =>
-          ride.rideCode === data.rideCode ? { ...ride, status: data.status } : ride
+      else if (data.type === "status_update") {
+        setRides((prevRides) =>
+          prevRides.map((ride) =>
+            ride.rideCode === data.rideCode ? { ...ride, status: data.status } : ride
+          )
         )
-      )
 
-      setSelectedRide((prev) =>
-        prev?.rideCode === data.rideCode ? { ...prev, status: data.status } : prev
-      )
+        setSelectedRide((prev) =>
+          prev?.rideCode === data.rideCode ? { ...prev, status: data.status } : prev
+        )
 
-      showToast({
-        title: "Status Updated",
-        description: `Ride ${data.rideCode} status changed to ${data.status}.`,
-        variant: "default",
-      })
-    } 
-    
-    else if (data.type === "new_ride") {
-      showToast({
-        title: "New Ride",
-        description: `New ride request from ${data.riderName}.`,
-        variant: "default",
-      })
-    } 
-    
-    else if (data.type === "ride_cancelled") {
-      showToast({
-        title: "Ride Cancelled",
-        description: `Ride ${data.rideCode} has been cancelled.`,
-        variant: "destructive",
-      })
+        showToast({
+          title: "Status Updated",
+          description: `Trip ${data.rideCode} status changed to ${data.status}.`,
+          variant: "default",
+        })
+      }
+
+      else if (data.type === "new_ride") {
+        showToast({
+          title: "New Trip",
+          description: `New trip request from ${data.riderName}.`,
+          variant: "default",
+        })
+      }
+
+      else if (data.type === "ride_cancelled") {
+        showToast({
+          title: "Trip Cancelled",
+          description: `Trip ${data.rideCode} has been cancelled.`,
+          variant: "destructive",
+        })
+      }
     }
-  }
 
 
-  webSocketRef.current = createWebSocket(handleWebSocketMessage)
+    webSocketRef.current = createWebSocket(handleWebSocketMessage)
 
 
-  return () => {
-    if (webSocketRef.current) {
-      webSocketRef.current.close()
-    } 
-  }
-}, [selectedRide, showToast])
+    return () => {
+      if (webSocketRef.current) {
+        webSocketRef.current.close()
+      }
+    }
+  }, [selectedRide, showToast])
 
   // Filter rides based on search term
   useEffect(() => {
@@ -776,7 +782,7 @@ export default function RidesManagement() {
       const logs = await api.getRideLogs(ride.id)
       setSelectedRide((prev) => (prev ? { ...prev, logs } : null))
     } catch (error) {
-      console.error("Error fetching ride logs:", error)
+      console.error("Error fetching trip logs:", error)
     }
   }
 
@@ -803,13 +809,13 @@ export default function RidesManagement() {
 
       showToast({
         title: "Data Refreshed",
-        description: "Ride data has been updated.",
+        description: "Trip data has been updated.",
       })
     } catch (error) {
-      console.error("Error refreshing rides:", error)
-      showToast({ 
+      console.error("Error refreshing trips:", error)
+      showToast({
         title: "Refresh Failed",
-        description: "Could not refresh ride data. Please try again.",
+        description: "Could not refresh trip data. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -817,39 +823,39 @@ export default function RidesManagement() {
     }
   }
 
-const handleStatusChange = async (rideId, newStatus) => {
-  try {
-    const response = await axios.put(`https://panalsbackend-production.up.railway.app/api/rides/${rideId}/status`, {
-      status: newStatus,
-    });
+  const handleStatusChange = async (rideId, newStatus) => {
+    try {
+      const response = await axios.put(`https://panalsbackend-production.up.railway.app/api/rides/${rideId}/status`, {
+        status: newStatus,
+      });
 
-    const updatedRide = response.data;
+      const updatedRide = response.data;
 
-    // Emit real-time update (if needed)
-    socket.emit("rideStatusUpdate", {
-      rideId: updatedRide._id,
-      status: updatedRide.status,
-    });
+      // Emit real-time update (if needed)
+      socket.emit("rideStatusUpdate", {
+        rideId: updatedRide._id,
+        status: updatedRide.status,
+      });
 
-    // Update local rides state
-    const updatedRides = rides.map((ride) =>
-      ride._id === updatedRide._id ? { ...ride, status: updatedRide.status } : ride
-    );
-    setRides(updatedRides);
+      // Update local rides state
+      const updatedRides = rides.map((ride) =>
+        ride._id === updatedRide._id ? { ...ride, status: updatedRide.status } : ride
+      );
+      setRides(updatedRides);
 
-    // Set filter to 'all'
-    setStatusFilter("all");
+      // Set filter to 'all'
+      setStatusFilter("all");
 
-    // Update filtered rides immediately so UI refreshes without reload
-    setFilteredRides(updatedRides);
+      // Update filtered rides immediately so UI refreshes without reload
+      setFilteredRides(updatedRides);
 
-    // Optional: close any modal
-    setSelectedRide(null);
-  } catch (error) {
-    console.error("Error updating ride status:", error);
-    alert("Failed to update ride status");
-  }
-};
+      // Optional: close any modal
+      setSelectedRide(null);
+    } catch (error) {
+      console.error("Error updating trip status:", error);
+      alert("Failed to update trip status");
+    }
+  };
 
 
 
@@ -922,7 +928,7 @@ const handleStatusChange = async (rideId, newStatus) => {
       <div className="p-6">
         {/* Page Header */}
         <div className="mb-8">
-          <h1 className="mb-6 text-3xl font-bold text-gray-800 dark:text-white">Rides Management</h1>
+          <h1 className="mb-6 text-3xl font-bold text-gray-800 dark:text-white">Trips Management</h1>
 
           {/* Filters and Search */}
           <FilterBar
@@ -946,16 +952,40 @@ const handleStatusChange = async (rideId, newStatus) => {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {filteredRides.map((ride) => (
               <RideCard
-                 key={ride._id}
+                key={ride._id}
                 ride={ride}
                 onTrack={handleTrackRide}
                 onChat={handleChatRide}
                 getStatusBadge={getStatusBadge}
-                 onStatusChange={handleStatusChange} // ✅ add this
+                onStatusChange={handleStatusChange}
+                onClick={() => handleRideClick(ride)}
               />
             ))}
           </div>
         )}
+
+        {showModal && selectedRide && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="bg-black rounded-xl shadow-lg p-6 w-full max-w-md">
+              <h2 className="text-xl font-bold mb-4">Trip Details</h2>
+              <p><span className="font-semibold">Driver Name:</span> {selectedRide.driver?.name || 'N/A'}</p>
+              <p><span className="font-semibold">Driver Phone:</span> {selectedRide.driver?.phone || 'N/A'}</p>
+              <hr className="my-2" />
+              <p><span className="font-semibold">Request Time:</span> {new Date(selectedRide.requestTime).toLocaleString()}</p>
+              <p><span className="font-semibold">Accept Time:</span> {new Date(selectedRide.acceptTime).toLocaleString()}</p>
+              <p><span className="font-semibold">Completion Time:</span> {new Date(selectedRide.completionTime).toLocaleString()}</p>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-4 py-2 rounded"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* Tracking Modal */}
         <TrackingModal
@@ -983,11 +1013,3 @@ const handleStatusChange = async (rideId, newStatus) => {
     </div>
   )
 }
-
-
-
-
-
-
-
-

@@ -77,6 +77,62 @@ export default function LiveTracking() {
           <p className="text-gray-600 dark:text-gray-400">Real-time tracking of drivers and ongoing trips</p>
         </div>
 
+
+        {/* Trip Statistics */}
+        <div className="mt-6 grid mb-4 grid-cols-1 md:grid-cols-5 gap-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div className="flex items-center space-x-2">
+              <Car className="w-5 h-5 text-green-500 dark:text-green-400" />
+              <div>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Active Trips</p>
+                <p className="text-gray-800 dark:text-white text-xl font-bold">
+                  {drivers.filter((d) => d.status === "active").length}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div className="flex items-center space-x-2">
+              <User className="w-5 h-5 text-green-500 dark:text-green-400" />
+              <div>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Total Drivers</p>
+                <p className="text-gray-800 dark:text-white text-xl font-bold">{drivers.length}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div className="flex items-center space-x-2">
+              <Clock className="w-5 h-5 text-green-500 dark:text-green-400" />
+              <div>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Avg ETA</p>
+                <p className="text-gray-800 dark:text-white text-xl font-bold">12 min</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div className="flex items-center space-x-2">
+              <MapPin className="w-5 h-5 text-green-500 dark:text-green-400" />
+              <div>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Per Km Earning</p>
+                <p className="text-gray-800 dark:text-white text-xl font-bold">₹25/km</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+            <div className="flex items-center space-x-2">
+              <MapPin className="w-5 h-5 text-green-500 dark:text-green-400" />
+              <div>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Coverage Area</p>
+                <p className="text-gray-800 dark:text-white text-xl font-bold">25 km</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
           {/* Map Area */}
           <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 relative overflow-hidden">
@@ -100,13 +156,16 @@ export default function LiveTracking() {
                 </div>
               </div>
 
+
+
+
+
               {/* Driver markers */}
               {drivers.map((driver) => (
                 <div
                   key={driver.id}
-                  className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-300 ${
-                    selectedDriver?.id === driver.id ? "scale-125" : "hover:scale-110"
-                  }`}
+                  className={`absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-all duration-300 ${selectedDriver?.id === driver.id ? "scale-125" : "hover:scale-110"
+                    }`}
                   style={{
                     left: `${((driver.location.lng - 67.0) * 10000) % 100}%`,
                     top: `${((driver.location.lat - 24.86) * 10000) % 100}%`,
@@ -118,13 +177,15 @@ export default function LiveTracking() {
                   >
                     <Car className="w-6 h-6" />
                     <div
-                      className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${
-                        driver.status === "active" ? "bg-green-500 dark:bg-green-400 animate-pulse" : "bg-gray-500"
-                      }`}
+                      className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${driver.status === "active" ? "bg-green-500 dark:bg-green-400 animate-pulse" : "bg-gray-500"
+                        }`}
                     ></div>
                   </div>
                 </div>
               ))}
+
+
+
 
               {/* Map controls */}
               <div className="absolute bottom-4 right-4 flex flex-col space-y-2">
@@ -157,11 +218,10 @@ export default function LiveTracking() {
               {drivers.map((driver) => (
                 <div
                   key={driver.id}
-                  className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 ${
-                    selectedDriver?.id === driver.id
+                  className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 ${selectedDriver?.id === driver.id
                       ? "border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-400/10"
                       : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
-                  }`}
+                    }`}
                   onClick={() => handleDriverClick(driver)}
                 >
                   <div className="flex items-start justify-between mb-2">
@@ -170,11 +230,10 @@ export default function LiveTracking() {
                       <span className="text-gray-800 dark:text-white font-medium">{driver.name}</span>
                     </div>
                     <div
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        driver.status === "active"
+                      className={`px-2 py-1 rounded-full text-xs ${driver.status === "active"
                           ? "bg-green-100 dark:bg-green-700 text-green-700 dark:text-green-400"
                           : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-                      }`}
+                        }`}
                     >
                       {driver.status}
                     </div>
@@ -226,50 +285,7 @@ export default function LiveTracking() {
           </div>
         </div>
 
-        {/* Trip Statistics */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-            <div className="flex items-center space-x-2">
-              <Car className="w-5 h-5 text-green-500 dark:text-green-400" />
-              <div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Active Trips</p>
-                <p className="text-gray-800 dark:text-white text-xl font-bold">
-                  {drivers.filter((d) => d.status === "active").length}
-                </p>
-              </div>
-            </div>
-          </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-            <div className="flex items-center space-x-2">
-              <User className="w-5 h-5 text-green-500 dark:text-green-400" />
-              <div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Total Drivers</p>
-                <p className="text-gray-800 dark:text-white text-xl font-bold">{drivers.length}</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-            <div className="flex items-center space-x-2">
-              <Clock className="w-5 h-5 text-green-500 dark:text-green-400" />
-              <div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Avg ETA</p>
-                <p className="text-gray-800 dark:text-white text-xl font-bold">12 min</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-            <div className="flex items-center space-x-2">
-              <MapPin className="w-5 h-5 text-green-500 dark:text-green-400" />
-              <div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Coverage Area</p>
-                <p className="text-gray-800 dark:text-white text-xl font-bold">25 km²</p>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )

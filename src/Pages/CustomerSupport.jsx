@@ -72,7 +72,7 @@ export default function CustomerSupport() {
       id: 1,
       userId: 'UID1001',
       userName: 'Amit Sharma',
-      service: 'uber',
+      service: 'Tripe',
       type: 'Ride',
       issue: 'Driver took longer route',
       status: 'pending',
@@ -88,7 +88,7 @@ export default function CustomerSupport() {
       id: 2,
       userId: 'UID1002',
       userName: 'Priya Patel',
-      service: 'swiggy',
+      service: 'Food',
       type: 'Food',
       issue: 'Wrong order delivered',
       status: 'resolved',
@@ -105,7 +105,7 @@ export default function CustomerSupport() {
       id: 3,
       userId: 'UID1003',
       userName: 'Rahul Verma',
-      service: 'porter',
+      service: 'Parcle',
       type: 'Delivery',
       issue: 'Damaged goods',
       status: 'refunded',
@@ -121,7 +121,7 @@ export default function CustomerSupport() {
       id: 4,
       userId: 'UID1004',
       userName: 'Neha Gupta',
-      service: 'uber',
+      service: 'Tripe',
       type: 'Ride',
       issue: 'Driver was rude',
       status: 'investigating',
@@ -137,7 +137,7 @@ export default function CustomerSupport() {
       id: 5,
       userId: 'UID1005',
       userName: 'Vikram Singh',
-      service: 'swiggy',
+      service: 'Food',
       type: 'Food',
       issue: 'Food quality poor',
       status: 'pending',
@@ -172,9 +172,9 @@ export default function CustomerSupport() {
 
   const getServiceColor = (service) => {
     switch (service) {
-      case 'uber': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'swiggy': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
-      case 'porter': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'Tripe': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
+      case 'Food': return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200';
+      case 'Parcle': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
       default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
     }
   };

@@ -1,5 +1,3 @@
-"use client"
-
 import { useState, useEffect, useCallback } from "react"
 import { useLocation } from 'react-router-dom';
 import axios from "axios"
@@ -17,10 +15,10 @@ const api = axios.create({
 })
 
 export default function VehicleManagement() {
-
     const location = useLocation();
   const [activeTab, setActiveTab] = useState("All")
   const [activeCategory, setActiveCategory] = useState("All")
+  const [activeVehicleType, setActiveVehicleType] = useState("All")
   const [searchQuery, setSearchQuery] = useState("")
   const [showAddModal, setShowAddModal] = useState(false)
   const [showViewModal, setShowViewModal] = useState(false)
@@ -57,7 +55,7 @@ export default function VehicleManagement() {
       return true
     } catch (error) {
       console.error("❌ Server connection test failed:", error)
-      setErrorMessage("Cannot connect to server. Please check if the server is running on http://localhost:5000")
+      setErrorMessage("Cannot connect to server. Please check if the server is running on https://panalsbackend-production.up.railway.app")
       return false
     }
   }, [])
@@ -534,7 +532,7 @@ export default function VehicleManagement() {
 handleManualReconnect();
   },[location])
 
-  // Filter vehicles based on search, tab, and category
+  // Filter vehicles based on search, tab, category and vehicle type
   const filteredVehicles = vehicles.filter((vehicle) => {
     if (!vehicle) return false
 
@@ -543,6 +541,7 @@ handleManualReconnect();
     const status = (vehicle.status || "").toLowerCase()
     const category = (vehicle.category || "").toLowerCase()
     const color = (vehicle.color || "").toLowerCase()
+    const vehicleType = (vehicle.vehicleType || "").toLowerCase()
 
     const matchesSearch =
       searchQuery === "" ||
@@ -552,8 +551,9 @@ handleManualReconnect();
 
     const matchesTab = activeTab === "All" || status === activeTab.toLowerCase()
     const matchesCategory = activeCategory === "All" || category === activeCategory.toLowerCase().replace(" ", " ")
+    const matchesVehicleType = activeVehicleType === "All" || vehicleType === activeVehicleType.toLowerCase()
 
-    return matchesSearch && matchesTab && matchesCategory
+    return matchesSearch && matchesTab && matchesCategory && matchesVehicleType
   })
 
   // Pagination logic
@@ -624,6 +624,20 @@ handleManualReconnect();
             <span className="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 cursor-pointer">
               Active
             </span>
+            <div className="absolute top-full left-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+              <button
+                onClick={() => handleStatusClick("Inactive")}
+                className="block px-3 py-1 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+              >
+                Set Inactive
+              </button>
+              {/* <button
+                // onClick={() => handleStatusClick("Maintenance")}
+                className="block px-3 py-1 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+              >
+                Set Maintenance
+              </button> */}
+            </div>
           </div>
         )
       case "Inactive":
@@ -632,16 +646,44 @@ handleManualReconnect();
             <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300 cursor-pointer">
               Inactive
             </span>
+            <div className="absolute top-full left-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+              <button
+                onClick={() => handleStatusClick("Active")}
+                className="block px-3 py-1 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+              >
+                Set Active
+              </button>
+              {/* <button
+                onClick={() => handleStatusClick("Maintenance")}
+                className="block px-3 py-1 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+              >
+                Set Maintenance
+              </button> */}
+            </div>
           </div>
         )
-      case "Maintenance":
-        return (
-          <div className="relative group">
-            <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 cursor-pointer">
-              Maintenance
-            </span>
-          </div>
-        )
+      // case "Maintenance":
+      //   return (
+      //     <div className="relative group">
+      //       <span className="px-2 py-1 text-xs rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300 cursor-pointer">
+      //         Maintenance
+      //       </span>
+      //       <div className="absolute top-full left-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md shadow-lg opacity-0 group-hover:opacity-100 transition-opacity z-10">
+      //         <button
+      //           onClick={() => handleStatusClick("Active")}
+      //           className="block px-3 py-1 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+      //         >
+      //           Set Active
+      //         </button>
+      //         <button
+      //           onClick={() => handleStatusClick("Inactive")}
+      //           className="block px-3 py-1 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 w-full text-left"
+      //         >
+      //           Set Inactive
+      //         </button>
+      //       </div>
+      //     </div>
+      //   )
       default:
         return (
           <span className="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
@@ -782,13 +824,6 @@ handleManualReconnect();
           </div>
         )}
 
-        {/* Error Message */}
-        {/* {errorMessage && !showAddModal && (
-          <div className="mb-4 p-3 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 rounded-lg">
-            {errorMessage}
-          </div>
-        )} */}
-
         <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="text-xl font-bold text-gray-800 dark:text-white">Fleet Management</h2>
@@ -826,6 +861,7 @@ handleManualReconnect();
                   setSearchQuery("")
                   setActiveTab("All")
                   setActiveCategory("All")
+                  setActiveVehicleType("All")
                   setCurrentPage(1)
                   fetchVehicles()
                   if (socketConnected) {
@@ -836,38 +872,80 @@ handleManualReconnect();
               >
                 <FaSync />
               </button>
+              <button
+                onClick={handleAddVehicle}
+                className="flex items-center gap-2 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+              >
+                <FaPlus /> Add Vehicle
+              </button>
             </div>
           )}
         </div>
 
-        {/* Category Filters */}
+        {/* Vehicle Type Filters */}
         {isLoading ? (
           <SkeletonFilter />
         ) : (
-          <div className="flex min-h-10 space-x-2 mb-4 overflow-x-auto pb-4">
+          <div className="flex min-h-8 space-x-2 mb-4 overflow-x-auto pb-2">
             <button
-              onClick={() => setActiveCategory("All")}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${activeCategory === "All" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"}`}
+              onClick={() => setActiveVehicleType("All")}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                activeVehicleType === "All" 
+                  ? "bg-purple-500 text-white" 
+                  : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+              }`}
             >
-              All Categories ({vehicles.length})
+              All Types ({vehicles.length})
             </button>
             <button
-              onClick={() => setActiveCategory("Ride")}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${activeCategory === "Ride" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"}`}
+              onClick={() => setActiveVehicleType("Car")}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                activeVehicleType === "Car" 
+                  ? "bg-blue-500 text-white" 
+                  : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+              }`}
             >
-              Ride ({vehicles.filter((v) => v.category === "Ride").length})
+              Cars ({vehicles.filter((v) => v.vehicleType === "Car").length})
             </button>
             <button
-              onClick={() => setActiveCategory("Food Delivery")}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${activeCategory === "Food Delivery" ? "bg-red-500 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"}`}
+              onClick={() => setActiveVehicleType("Bike")}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                activeVehicleType === "Bike" 
+                  ? "bg-green-500 text-white" 
+                  : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+              }`}
             >
-              Food Delivery ({vehicles.filter((v) => v.category === "Food Delivery").length})
+              Bikes ({vehicles.filter((v) => v.vehicleType === "Bike").length})
             </button>
             <button
-              onClick={() => setActiveCategory("Courier Delivery")}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${activeCategory === "Courier Delivery" ? "bg-orange-500 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"}`}
+              onClick={() => setActiveVehicleType("Electric vehicle")}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                activeVehicleType === "Electric vehicle" 
+                  ? "bg-teal-500 text-white" 
+                  : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+              }`}
             >
-              Courier ({vehicles.filter((v) => v.category === "Courier Delivery").length})
+              Electric ({vehicles.filter((v) => v.vehicleType === "Electric vehicle").length})
+            </button>
+            <button
+              onClick={() => setActiveVehicleType("Truck")}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                activeVehicleType === "Truck" 
+                  ? "bg-orange-500 text-white" 
+                  : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+              }`}
+            >
+              Trucks ({vehicles.filter((v) => v.vehicleType === "Truck").length})
+            </button>
+            <button
+              onClick={() => setActiveVehicleType("Van")}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                activeVehicleType === "Van" 
+                  ? "bg-indigo-500 text-white" 
+                  : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+              }`}
+            >
+              Vans ({vehicles.filter((v) => v.vehicleType === "Van").length})
             </button>
           </div>
         )}
@@ -879,27 +957,27 @@ handleManualReconnect();
           <div className="flex min-h-8 space-x-2 mb-4 overflow-x-auto pb-2">
             <button
               onClick={() => setActiveTab("All")}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${activeTab === "All" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"}`}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                activeTab === "All" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+              }`}
             >
               All Status ({vehicles.length})
             </button>
             <button
               onClick={() => setActiveTab("Active")}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${activeTab === "Active" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"}`}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                activeTab === "Active" ? "bg-green-500 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+              }`}
             >
               Active ({vehicles.filter((v) => v.status === "Active").length})
             </button>
             <button
               onClick={() => setActiveTab("Inactive")}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${activeTab === "Inactive" ? "bg-yellow-500 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"}`}
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${
+                activeTab === "Inactive" ? "bg-yellow-500 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+              }`}
             >
               Inactive ({vehicles.filter((v) => v.status === "Inactive").length})
-            </button>
-            <button
-              onClick={() => setActiveTab("Maintenance")}
-              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap ${activeTab === "Maintenance" ? "bg-red-500 text-white" : "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300"}`}
-            >
-              Maintenance ({vehicles.filter((v) => v.status === "Maintenance").length})
             </button>
           </div>
         )}
@@ -951,6 +1029,10 @@ handleManualReconnect();
 
                   <div className="grid grid-cols-2 gap-2 text-sm mb-3">
                     <div>
+                      <p className="text-gray-500 dark:text-gray-400">Type</p>
+                      <p className="text-gray-800 dark:text-white">{vehicle.vehicleType}</p>
+                    </div>
+                    <div>
                       <p className="text-gray-500 dark:text-gray-400">Year</p>
                       <p className="text-gray-800 dark:text-white">{vehicle.year}</p>
                     </div>
@@ -984,6 +1066,20 @@ handleManualReconnect();
                         title="View Details"
                       >
                         <FaEye />
+                      </button>
+                      <button
+                        onClick={() => handleEditVehicle(vehicle)}
+                        className="p-2 text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400"
+                        title="Edit"
+                      >
+                        <FaEdit />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteVehicle(vehicle._id)}
+                        className="p-2 text-gray-500 dark:text-gray-400 hover:text-red-500 dark:hover:text-red-400"
+                        title="Delete"
+                      >
+                        <FaTrash />
                       </button>
                     </div>
                   </div>
@@ -1179,7 +1275,7 @@ handleManualReconnect();
                     >
                       <option value="Active">Active</option>
                       <option value="Inactive">Inactive</option>
-                      <option value="Maintenance">Maintenance</option>
+                      {/* <option value="Maintenance">Maintenance</option> */}
                     </select>
                   </div>
                 </div>
@@ -1309,16 +1405,8 @@ handleManualReconnect();
                     </div>
                   </div>
                 </div>
-{/* 
-                {selectedVehicle.age && (
-                  <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg">
-                    <p className="text-sm text-blue-800 dark:text-blue-300">
-                      <strong>Vehicle Age:</strong> {selectedVehicle.age} years old
-                    </p>
-                  </div>
-                )} */}
 
-                {selectedVehicle.maintenanceStatus && (
+                {/* {selectedVehicle.maintenanceStatus && (
                   <div
                     className={`p-3 rounded-lg ${
                       selectedVehicle.maintenanceStatus === "Overdue"
@@ -1338,9 +1426,9 @@ handleManualReconnect();
                       }`}
                     >
                       <strong>Maintenance Status:</strong> {selectedVehicle.maintenanceStatus}
-                    </p>
+                    </p>x
                   </div>
-                )}
+                )} */}
               </div>
 
               <div className="flex justify-end gap-3 mt-6">
@@ -1349,6 +1437,21 @@ handleManualReconnect();
                   className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   Close
+                </button>
+                <button
+                  onClick={() => {
+                    setShowViewModal(false)
+                    handleEditVehicle(selectedVehicle)
+                  }}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+                >
+                  Edit Vehicle
+                </button>
+                <button
+                  onClick={() => handleDeleteVehicle(selectedVehicle._id)}
+                  className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                >
+                  Delete
                 </button>
               </div>
             </div>

@@ -190,7 +190,7 @@ export default function Header({ toggleSidebar, onLogout, userEmail }) {
           i
         </div>
         <h4 className="text-gray-800 dark:text-white font-bold sm:block hidden ms-2 text-2xl transition-colors duration-300">
-          IdharUdhar
+          Admin Panal IdharUdhar
         </h4>
         <button
           className="MenuToggle-button h-8 w-8 bg-green-600/30 rounded-full flex justify-center items-center text-green-700 dark:text-green-400 ms-4 md:hidden hover:bg-green-600/50 transition-colors duration-200"

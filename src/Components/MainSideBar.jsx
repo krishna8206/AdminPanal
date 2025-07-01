@@ -31,7 +31,7 @@ export default function MainSideBar({ isOpen, toggleSidebar }) {
       path: "",
     },
     {
-      name: "Rides",
+      name: "Trips",
       icon: "fas fa-biking",
       path: "rides",
     },

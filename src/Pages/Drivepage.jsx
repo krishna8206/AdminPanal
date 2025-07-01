@@ -29,6 +29,7 @@ import {
   ImageIcon,
   UserPlus,
   UserMinus,
+  Download,
 } from "lucide-react"
 import axios from "axios"
 
@@ -95,6 +96,9 @@ export default function DriverManagementDashboard() {
   const [notification, setNotification] = useState({ show: false, type: "", message: "" })
   const [confirmDialog, setConfirmDialog] = useState({ show: false, title: "", message: "", onConfirm: null })
 
+  // CSV Download state
+  const [isDownloading, setIsDownloading] = useState(false)
+
   // Fetch initial data
   useEffect(() => {
     fetchDrivers()
@@ -139,6 +143,94 @@ export default function DriverManagementDashboard() {
       }
     } catch (error) {
       showNotification("error", "Failed to fetch admins")
+    }
+  }
+
+  // CSV Download functionality
+  const convertToCSV = (data) => {
+    if (!data || data.length === 0) return ""
+
+    // Define headers
+    const headers = [
+      "Name",
+      "Email",
+      "Phone",
+      "Driver Type",
+      "Vehicle Type",
+      "License Plate",
+      "Status",
+      "KYC Status",
+      "Rating",
+      "Completed Trips",
+      "Join Date",
+      "Primary Driver",
+      "Location (Lat)",
+      "Location (Lng)",
+    ]
+
+    // Convert data to CSV format
+    const csvData = data.map((driver) => [
+      driver.name || "",
+      driver.email || "",
+      driver.phone || "",
+      driver.driverType || "",
+      driver.vehicleType || "",
+      driver.licensePlate || "",
+      driver.status || "",
+      driver.kycStatus || "",
+      driver.rating || "",
+      driver.completedTrips || 0,
+      driver.joinDate ? new Date(driver.joinDate).toLocaleDateString() : "",
+      driver.primaryDriver?.name || "",
+      driver.location?.lat || "",
+      driver.location?.lng || "",
+    ])
+
+    // Combine headers and data
+    const csvContent = [headers, ...csvData]
+      .map((row) => row.map((field) => `"${String(field).replace(/"/g, '""')}"`).join(","))
+      .join("\n")
+
+    return csvContent
+  }
+
+  const downloadCSV = async () => {
+    setIsDownloading(true)
+    try {
+      // Use filtered drivers if there are filters applied, otherwise use all drivers
+      const dataToExport = filteredDrivers.length > 0 ? filteredDrivers : drivers
+
+      if (dataToExport.length === 0) {
+        showNotification("error", "No driver data to export")
+        return
+      }
+
+      const csvContent = convertToCSV(dataToExport)
+
+      // Create blob and download
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
+      const link = document.createElement("a")
+
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob)
+        link.setAttribute("href", url)
+
+        // Generate filename with current date
+        const currentDate = new Date().toISOString().split("T")[0]
+        const filename = `drivers_data_${currentDate}.csv`
+        link.setAttribute("download", filename)
+
+        link.style.visibility = "hidden"
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+
+        showNotification("success", `Driver data exported successfully! (${dataToExport.length} records)`)
+      }
+    } catch (error) {
+      showNotification("error", `Failed to export data: ${error.message}`)
+    } finally {
+      setIsDownloading(false)
     }
   }
 
@@ -596,6 +688,39 @@ export default function DriverManagementDashboard() {
 
   const primaryDrivers = drivers.filter((d) => d.driverType === "Primary")
 
+  // Function to get all vehicles for a driver (including sub-drivers' vehicles)
+  const getDriverVehicles = (driver) => {
+    const vehicles = []
+
+    // Add driver's own vehicle if exists
+    if (driver.vehicleType || driver.licensePlate) {
+      vehicles.push({
+        vehicleType: driver.vehicleType,
+        licensePlate: driver.licensePlate,
+        isPrimary: true,
+        driverName: driver.name,
+        driverType: driver.driverType
+      })
+    }
+
+    // Add sub-drivers' vehicles if exists
+    if (driver.subDrivers && driver.subDrivers.length > 0) {
+      driver.subDrivers.forEach(subDriver => {
+        if (subDriver.vehicleType || subDriver.licensePlate) {
+          vehicles.push({
+            vehicleType: subDriver.vehicleType,
+            licensePlate: subDriver.licensePlate,
+            isPrimary: false,
+            driverName: subDriver.name,
+            driverType: "Sub-driver"
+          })
+        }
+      })
+    }
+
+    return vehicles
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white">
       <canvas ref={canvasRef} style={{ display: "none" }} />
@@ -614,13 +739,12 @@ export default function DriverManagementDashboard() {
         {/* Enhanced Notification System */}
         {notification.show && (
           <div
-            className={`fixed top-6 right-6 px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center text-white transform transition-all duration-300 ${
-              notification.type === "success"
-                ? "bg-gradient-to-r from-green-500 to-green-600"
-                : notification.type === "error"
-                  ? "bg-gradient-to-r from-red-500 to-red-600"
-                  : "bg-gradient-to-r from-blue-500 to-blue-600"
-            }`}
+            className={`fixed top-6 right-6 px-6 py-4 rounded-xl shadow-2xl z-50 flex items-center text-white transform transition-all duration-300 ${notification.type === "success"
+              ? "bg-gradient-to-r from-green-500 to-green-600"
+              : notification.type === "error"
+                ? "bg-gradient-to-r from-red-500 to-red-600"
+                : "bg-gradient-to-r from-blue-500 to-blue-600"
+              }`}
           >
             {notification.type === "success" ? (
               <CheckCircle className="w-6 h-6 mr-3" />
@@ -671,11 +795,10 @@ export default function DriverManagementDashboard() {
         {/* Verification Result Pop-up */}
         {verificationResult && (
           <div
-            className={`fixed top-6 right-6 px-8 py-6 rounded-2xl shadow-2xl z-50 flex items-center text-white transform transition-all duration-500 ${
-              verificationResult === "success"
-                ? "bg-gradient-to-r from-green-500 to-green-600"
-                : "bg-gradient-to-r from-red-500 to-red-600"
-            }`}
+            className={`fixed top-6 right-6 px-8 py-6 rounded-2xl shadow-2xl z-50 flex items-center text-white transform transition-all duration-500 ${verificationResult === "success"
+              ? "bg-gradient-to-r from-green-500 to-green-600"
+              : "bg-gradient-to-r from-red-500 to-red-600"
+              }`}
           >
             {verificationResult === "success" ? (
               <CheckCircle2 className="w-8 h-8 mr-4" />
@@ -735,7 +858,7 @@ export default function DriverManagementDashboard() {
         </div>
 
         {/* Action Buttons */}
-        {/* <div className="flex flex-wrap gap-4 mb-8">
+        <div className="flex flex-wrap gap-4 mb-8">
           <button
             onClick={() => openModal("onboard")}
             className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 px-8 py-4 rounded-xl flex items-center font-semibold text-white shadow-lg transform hover:scale-105 transition-all duration-200"
@@ -744,7 +867,26 @@ export default function DriverManagementDashboard() {
             <Plus className="w-5 h-5 mr-3" />
             Onboard New Driver
           </button>
-        </div> */}
+
+          {/* CSV Download Button */}
+          <button
+            onClick={downloadCSV}
+            disabled={isDownloading || drivers.length === 0}
+            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-8 py-4 rounded-xl flex items-center font-semibold text-white shadow-lg transform hover:scale-105 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {isDownloading ? (
+              <>
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-3"></div>
+                Downloading...
+              </>
+            ) : (
+              <>
+                <Download className="w-5 h-5 mr-3" />
+                Download CSV ({filteredDrivers.length > 0 ? filteredDrivers.length : drivers.length} records)
+              </>
+            )}
+          </button>
+        </div>
 
         {/* Enhanced Filters & Search */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 mb-8 shadow-xl">
@@ -818,7 +960,7 @@ export default function DriverManagementDashboard() {
                   filteredDrivers.map((driver) => (
                     <tr
                       key={driver._id}
-                      className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
+                      className="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                     >
                       <td className="px-8 py-6">
                         <div className="flex items-center">
@@ -848,17 +990,26 @@ export default function DriverManagementDashboard() {
                         </div>
                       </td>
                       <td className="px-8 py-6">
-                        {driver.vehicleType && driver.licensePlate ? (
-                          <div className="flex items-center">
-                            <Car className="w-5 h-5 mr-2 text-gray-400" />
-                            <div>
-                              <div className="font-medium">{driver.vehicleType}</div>
-                              <div className="text-sm text-gray-500">{driver.licensePlate}</div>
-                            </div>
-                          </div>
-                        ) : (
-                          <span className="text-sm text-gray-500 italic">N/A</span>
-                        )}
+                        <div className="space-y-2">
+                          {getDriverVehicles(driver).length > 0 ? (
+                            getDriverVehicles(driver).map((vehicle, index) => (
+                              <div key={index} className="flex items-center gap-2">
+                                <Car className="w-4 h-4 text-gray-400" />
+                                <div>
+                                  <div className="text-sm font-medium">{vehicle.vehicleType || "N/A"}</div>
+                                  <div className="text-xs text-gray-500">{vehicle.licensePlate || "N/A"}</div>
+                                  {!vehicle.isPrimary && (
+                                    <div className="text-xs text-purple-500">
+                                      Sub-driver: {vehicle.driverName}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <span className="text-sm text-gray-500 italic">N/A</span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-8 py-6">
                         <span
@@ -884,7 +1035,7 @@ export default function DriverManagementDashboard() {
                           >
                             {driver.kycStatus}
                           </span>
-                          {/* {driver.kycStatus === "Pending" && (
+                          {driver.kycStatus === "Pending" && (
                             <div className="flex gap-1">
                               <button
                                 onClick={() => handleVerifyKyc(driver._id, "verify")}
@@ -901,7 +1052,7 @@ export default function DriverManagementDashboard() {
                                 <XCircle className="w-4 h-4" />
                               </button>
                             </div>
-                          )} */}
+                          )}
                         </div>
                       </td>
                       <td className="px-8 py-6">
@@ -913,7 +1064,7 @@ export default function DriverManagementDashboard() {
                           >
                             <Eye className="w-4 h-4" />
                           </button>
-                          {/* <button
+                          <button
                             onClick={() => openModal("manage", driver)}
                             className="p-2 text-green-600 hover:bg-green-100 dark:hover:bg-green-900 rounded-lg transition-colors"
                             title="Edit Driver"
@@ -935,7 +1086,7 @@ export default function DriverManagementDashboard() {
                             title="Delete Driver"
                           >
                             <Trash2 className="w-4 h-4" />
-                          </button> */}
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -967,7 +1118,7 @@ export default function DriverManagementDashboard() {
                     {modalType === "admin-verify" && "🔐 Admin Verification Required"}
                     {modalType === "verify-selfie" && `📸 Verify Driver: ${editDriver?.name}`}
                     {modalType === "onboard" && "➕ Onboard New Driver"}
-                    {modalType === "manage" && `✏️ Edit Driver: ${editDriver?.name}`}
+                    {modalType === "manage" && `✏ Edit Driver: ${editDriver?.name}`}
                     {modalType === "view" && `👤 Driver Details: ${selectedDriver?.name}`}
                   </h3>
                   <button
@@ -999,757 +1150,786 @@ export default function DriverManagementDashboard() {
                             {selectedDriver.status || "Unknown"}
                           </span>
                           <span
-                            className={`px-3 py-1 rounded-full text-sm font-semibold ${getStatusColor(selectedDriver.kycStatus)}`}
+                            className={`px - 3 py-1 rounded-full text-sm font-semibold ${getStatusColor(selectedDriver.kycStatus)}`}
                           >
-                            KYC: {selectedDriver.kycStatus}
-                          </span>
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm font-semibold ${selectedDriver.driverType === "Primary" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"}`}
+                          KYC: {selectedDriver.kycStatus}
+                        </span>
+                        <span
+                          className={`px - 3 py-1 rounded-full text-sm font-semibold ${selectedDriver.driverType === "Primary" ? "bg-blue-100 text-blue-800" : "bg-purple-100 text-purple-800"}`}
                           >
-                            {selectedDriver.driverType}
-                          </span>
-                        </div>
-                      </div>
+                        {selectedDriver.driverType}
+                      </span>
+                    </div>
+                  </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-6">
-                        <div>
-                          <h5 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                            Contact Information
-                          </h5>
-                          <div className="space-y-3">
-                            <div className="flex items-center">
-                              <Mail className="w-5 h-5 mr-3 text-gray-400" />
-                              <span>{selectedDriver.email}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <Phone className="w-5 h-5 mr-3 text-gray-400" />
-                              <span>{selectedDriver.phone}</span>
-                            </div>
-                            <div className="flex items-center">
-                              <Calendar className="w-5 h-5 mr-3 text-gray-400" />
-                              <span>Joined {formatDate(selectedDriver.joinDate)}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {(selectedDriver.vehicleType || selectedDriver.licensePlate) && (
-                          <div>
-                            <h5 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                              Vehicle Information
-                            </h5>
-                            <div className="space-y-3">
-                              {selectedDriver.vehicleType && (
-                                <div className="flex items-center">
-                                  <Car className="w-5 h-5 mr-3 text-gray-400" />
-                                  <span>{selectedDriver.vehicleType}</span>
-                                </div>
-                              )}
-                              {selectedDriver.licensePlate && (
-                                <div className="flex items-center">
-                                  <FileText className="w-5 h-5 mr-3 text-gray-400" />
-                                  <span>{selectedDriver.licensePlate}</span>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                  <div>
+                    <h5 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                      Contact Information
+                    </h5>
+                    <div className="space-y-3">
+                      <div className="flex items-center">
+                        <Mail className="w-5 h-5 mr-3 text-gray-400" />
+                        <span>{selectedDriver.email}</span>
                       </div>
-
-                      <div className="space-y-6">
-                        <div>
-                          <h5 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Performance</h5>
-                          <div className="space-y-3">
-                            <div className="flex items-center justify-between">
-                              <span className="flex items-center">
-                                <Star className="w-5 h-5 mr-3 text-yellow-400" />
-                                Rating
-                              </span>
-                              <span className="font-semibold">{selectedDriver.rating || "N/A"}</span>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <span className="flex items-center">
-                                <Activity className="w-5 h-5 mr-3 text-green-400" />
-                                Completed Trips
-                              </span>
-                              <span className="font-semibold">{selectedDriver.completedTrips || 0}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {selectedDriver.location && (
-                          <div>
-                            <h5 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Location</h5>
-                            <div className="flex items-center">
-                              <MapPin className="w-5 h-5 mr-3 text-red-400" />
-                              <span>
-                                {selectedDriver.location.lat?.toFixed(4)}, {selectedDriver.location.lng?.toFixed(4)}
-                              </span>
-                            </div>
-                          </div>
-                        )}
+                      <div className="flex items-center">
+                        <Phone className="w-5 h-5 mr-3 text-gray-400" />
+                        <span>{selectedDriver.phone}</span>
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="w-5 h-5 mr-3 text-gray-400" />
+                        <span>Joined {formatDate(selectedDriver.joinDate)}</span>
                       </div>
                     </div>
+                  </div>
 
-                    {selectedDriver.subDrivers && selectedDriver.subDrivers.length > 0 && (
+                  {/* Enhanced Vehicle Information Section */}
+                  <div>
+                    <h5 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                      Vehicle Information
+                    </h5>
+                    <div className="space-y-4">
+                      {getDriverVehicles(selectedDriver).length > 0 ? (
+                        getDriverVehicles(selectedDriver).map((vehicle, index) => (
+                          <div key={index} className="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center">
+                                <Car className="w-5 h-5 mr-2 text-gray-400" />
+                                <span className="font-medium">{vehicle.vehicleType || "N/A"}</span>
+                              </div>
+                              {vehicle.isPrimary ? (
+                                <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                  {vehicle.driverType}
+                                </span>
+                              ) : (
+                                <span className="px-2 py-1 bg-purple-100 text-purple-800 text-xs rounded-full">
+                                  Sub-driver: {vehicle.driverName}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center">
+                              <FileText className="w-4 h-4 mr-2 text-gray-400" />
+                              <span className="text-sm">{vehicle.licensePlate || "N/A"}</span>
+                            </div>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-sm text-gray-500 italic">No vehicle information available</div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <h5 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Performance</h5>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center">
+                          <Star className="w-5 h-5 mr-3 text-yellow-400" />
+                          Rating
+                        </span>
+                        <span className="font-semibold">{selectedDriver.rating || "N/A"}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="flex items-center">
+                          <Activity className="w-5 h-5 mr-3 text-green-400" />
+                          Completed Trips
+                        </span>
+                        <span className="font-semibold">{selectedDriver.completedTrips || 0}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {selectedDriver.location && (
+                    <div>
+                      <h5 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Location</h5>
+                      <div className="flex items-center">
+                        <MapPin className="w-5 h-5 mr-3 text-red-400" />
+                        <span>
+                          {selectedDriver.location.lat?.toFixed(4)}, {selectedDriver.location.lng?.toFixed(4)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {selectedDriver.subDrivers?.length > 0 && (
+                <div>
+                  <h5 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Sub-drivers</h5>
+                  <ul className="space-y-2">
+                    {selectedDriver.subDrivers.map((sub) => {
+                      // Check if vehicle exists and has either type or number plate
+                      const vehicleInfo = sub.vehicle
+                        ? `${ sub.vehicle.type || 'Vehicle'} • ${sub.vehicle.numberPlate || 'No plate'}`
+                    : 'No vehicle assigned';
+
+                    return (
+                    <li key={sub._id} className="flex items-start p-3 bg-gray-100 dark:bg-gray-700 rounded-lg">
+                      <User className="w-4 h-4 mr-2 mt-1 flex-shrink-0 text-gray-500" />
                       <div>
-                        <h5 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Sub-drivers</h5>
-                        <ul className="space-y-2">
-                          {selectedDriver.subDrivers.map((sub) => (
-                            <li key={sub._id} className="flex items-center p-2 bg-gray-100 dark:bg-gray-700 rounded-lg">
-                              <User className="w-4 h-4 mr-2 text-gray-500" />
-                              <span>
-                                {sub.name} ({sub.email})
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
+                        <div className="font-medium">
+                          {sub.name} • {sub.email}
+                        </div>
+                        <div className="text-sm text-gray-600 dark:text-gray-300 mt-1">
+                          {vehicleInfo}
+                        </div>
                       </div>
-                    )}
+                    </li>
+                    );
+      })}
+                  </ul>
+                </div>
+              )}
 
-                    <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                      {/* <button
-                        onClick={() => openModal("manage", selectedDriver)}
-                        className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105"
-                      >
-                        Edit Driver
-                      </button> */}
+              <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                <button
+                  onClick={() => openModal("manage", selectedDriver)}
+                  className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105"
+                >
+                  Edit Driver
+                </button>
+              </div>
+            </div>
+                )}
+
+            {/* Admin Verification Modal */}
+            {modalType === "admin-verify" && (
+              <div className="space-y-6">
+                <div className="bg-blue-50 dark:bg-blue-900 rounded-xl p-6">
+                  <div className="flex items-center mb-4">
+                    <Shield className="w-8 h-8 text-blue-600 mr-3" />
+                    <h4 className="text-lg font-semibold text-blue-900 dark:text-blue-100">
+                      Security Verification
+                    </h4>
+                  </div>
+                  <p className="text-blue-700 dark:text-blue-200">
+                    To proceed with driver verification, please verify your own identity first.
+                  </p>
+                </div>
+
+                {errors.adminVerify && (
+                  <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-xl p-4">
+                    <div className="flex items-center">
+                      <XCircle className="w-5 h-5 text-red-600 mr-2" />
+                      <span className="text-red-700 dark:text-red-200">{errors.adminVerify}</span>
                     </div>
                   </div>
                 )}
 
-                {/* Admin Verification Modal */}
-                {modalType === "admin-verify" && (
-                  <div className="space-y-6">
-                    <div className="bg-blue-50 dark:bg-blue-900 rounded-xl p-6">
-                      <div className="flex items-center mb-4">
-                        <Shield className="w-8 h-8 text-blue-600 mr-3" />
-                        <h4 className="text-lg font-semibold text-blue-900 dark:text-blue-100">
-                          Security Verification
-                        </h4>
-                      </div>
-                      <p className="text-blue-700 dark:text-blue-200">
-                        To proceed with driver verification, please verify your own identity first.
-                      </p>
-                    </div>
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">
+                      Select Your Admin Profile
+                    </label>
+                    <select
+                      value={verifyingAdminId}
+                      onChange={(e) => setVerifyingAdminId(e.target.value)}
+                      className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    >
+                      {admins.length > 0 ? (
+                        admins.map((admin) => (
+                          <option key={admin.id} value={admin.id}>
+                            {admin.name}
+                          </option>
+                        ))
+                      ) : (
+                        <option disabled>No admins with selfies found</option>
+                      )}
+                    </select>
+                  </div>
 
-                    {errors.adminVerify && (
-                      <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-xl p-4">
-                        <div className="flex items-center">
-                          <XCircle className="w-5 h-5 text-red-600 mr-2" />
-                          <span className="text-red-700 dark:text-red-200">{errors.adminVerify}</span>
+                  <div>
+                    <label className="block text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">
+                      Provide Your Selfie
+                    </label>
+                    <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-blue-400 transition-colors">
+                      <div className="flex items-center justify-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelfieFor("verify-admin")
+                            setShowCamera(true)
+                          }}
+                          className="flex items-center px-6 py-3 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
+                        >
+                          <Camera className="w-5 h-5 mr-2" />
+                          Take Photo
+                        </button>
+                      </div>
+                      {adminVerificationFile && (
+                        <div className="mt-4 flex items-center justify-center text-green-600">
+                          <CheckCircle className="w-5 h-5 mr-2" />
+                          <span className="font-medium">Photo captured successfully</span>
                         </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={closeModal}
+                    className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAdminVerification}
+                    disabled={isLoading}
+                    className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Verifying...
+                      </div>
+                    ) : (
+                      "Verify & Proceed"
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Driver Verification Modal */}
+            {modalType === "verify-selfie" && editDriver && (
+              <div className="space-y-6">
+                <div className="bg-purple-50 dark:bg-purple-900 rounded-xl p-6">
+                  <div className="flex items-center mb-4">
+                    <Camera className="w-8 h-8 text-purple-600 mr-3" />
+                    <h4 className="text-lg font-semibold text-purple-900 dark:text-purple-100">
+                      Driver Face Verification
+                    </h4>
+                  </div>
+                  <p className="text-purple-700 dark:text-purple-200">
+                    Provide a new selfie for the driver to verify against the one on record.
+                  </p>
+                </div>
+
+                {errors.verify && (
+                  <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-xl p-4">
+                    <div className="flex items-center">
+                      <XCircle className="w-5 h-5 text-red-600 mr-2" />
+                      <span className="text-red-700 dark:text-red-200">{errors.verify}</span>
+                    </div>
+                  </div>
+                )}
+
+                <div>
+                  <label className="block text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">
+                    Capture Driver's Selfie
+                  </label>
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-purple-400 transition-colors">
+                    <div className="flex items-center justify-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelfieFor("verify-driver")
+                          setShowCamera(true)
+                        }}
+                        className="flex items-center px-6 py-3 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
+                      >
+                        <Camera className="w-5 h-5 mr-2" />
+                        Take Photo
+                      </button>
+                    </div>
+                    {editDriver.verificationSelfie && (
+                      <div className="mt-4 flex items-center justify-center text-green-600">
+                        <CheckCircle className="w-5 h-5 mr-2" />
+                        <span className="font-medium">Photo captured successfully</span>
                       </div>
                     )}
+                  </div>
+                </div>
 
-                    <div className="space-y-6">
-                      <div>
-                        <label className="block text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">
-                          Select Your Admin Profile
-                        </label>
-                        <select
-                          value={verifyingAdminId}
-                          onChange={(e) => setVerifyingAdminId(e.target.value)}
-                          className="w-full p-4 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                        >
-                          {admins.length > 0 ? (
-                            admins.map((admin) => (
-                              <option key={admin.id} value={admin.id}>
-                                {admin.name}
-                              </option>
-                            ))
-                          ) : (
-                            <option disabled>No admins with selfies found</option>
-                          )}
-                        </select>
+                <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={closeModal}
+                    className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDriverVerification}
+                    disabled={isLoading}
+                    className="px-8 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Verifying Driver...
                       </div>
+                    ) : (
+                      "Verify Driver"
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
 
-                      <div>
-                        <label className="block text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">
-                          Provide Your Selfie
-                        </label>
-                        <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-blue-400 transition-colors">
-                          <div className="flex items-center justify-center">
+            {/* Onboard Driver Modal */}
+            {modalType === "onboard" && (
+              <div className="space-y-6">
+                {/* Driver Type Selection */}
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    className={`p-4 rounded-lg text-center font-semibold ${formData.driverType === "Primary" ? "bg-green-600 text-white" : "bg-gray-200 dark:bg-gray-700"}`}
+                    onClick={() => setFormData({ ...formData, driverType: "Primary" })}
+                  >
+                    Primary Driver
+                  </button>
+                  <button
+                    className={`p-4 rounded-lg text-center font-semibold ${formData.driverType === "Sub-driver" ? "bg-green-600 text-white" : "bg-gray-200 dark:bg-gray-700"}`}
+                    onClick={() => setFormData({ ...formData, driverType: "Sub-driver" })}
+                  >
+                    Sub-driver
+                  </button>
+                </div>
+
+                {errors.form && (
+                  <div
+                    className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+                    role="alert"
+                  >
+                    {errors.form}
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Full Name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className={`w-full p-4 border rounded-xl ${errors.name ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
+                    />
+                    {errors.name && <p className="text-red-500 text-xs italic">{errors.name}</p>}
+                  </div>
+                  <div>
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className={`w-full p-4 border rounded-xl ${errors.email ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
+                    />
+                    {errors.email && <p className="text-red-500 text-xs italic">{errors.email}</p>}
+                  </div>
+                  <div className="md:col-span-2">
+                    <input
+                      type="text"
+                      placeholder="Phone"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      className={`w-full p-4 border rounded-xl ${errors.phone ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
+                    />
+                    {errors.phone && <p className="text-red-500 text-xs italic">{errors.phone}</p>}
+                  </div>
+                </div>
+
+                {/* Vehicle information for both primary and sub-drivers */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="Vehicle Type"
+                      value={formData.vehicleType}
+                      onChange={(e) => setFormData({ ...formData, vehicleType: e.target.value })}
+                      className={`w-full p-4 border rounded-xl ${errors.vehicleType ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
+                    />
+                    {errors.vehicleType && <p className="text-red-500 text-xs italic">{errors.vehicleType}</p>}
+                  </div>
+                  <div>
+                    <input
+                      type="text"
+                      placeholder="License Plate"
+                      value={formData.licensePlate}
+                      onChange={(e) => setFormData({ ...formData, licensePlate: e.target.value.toUpperCase() })}
+                      className={`w-full p-4 border rounded-xl ${errors.licensePlate ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
+                    />
+                    {errors.licensePlate && <p className="text-red-500 text-xs italic">{errors.licensePlate}</p>}
+                  </div>
+                </div>
+
+                {formData.driverType === "Sub-driver" && (
+                  <div>
+                    <select
+                      value={formData.primaryDriver}
+                      onChange={(e) => setFormData({ ...formData, primaryDriver: e.target.value })}
+                      className={`w-full p-4 border rounded-xl ${errors.primaryDriver ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
+                    >
+                      <option value="">Select Primary Driver</option>
+                      {primaryDrivers.map((d) => (
+                        <option key={d._id} value={d._id}>
+                          {d.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.primaryDriver && <p className="text-red-500 text-xs italic">{errors.primaryDriver}</p>}
+                  </div>
+                )}
+
+                {/* Document Uploads - Enhanced for all drivers */}
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+                  {/* License Upload */}
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center">
+                    <label htmlFor="license-upload" className="cursor-pointer">
+                      <FileText className="mx-auto h-8 w-8 text-gray-400" />
+                      <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">License</span>
+                      <input
+                        id="license-upload"
+                        type="file"
+                        className="sr-only"
+                        onChange={(e) => setLicensePhoto(e.target.files[0])}
+                      />
+                    </label>
+                    {licensePhoto && <span className="text-xs text-green-500">Uploaded</span>}
+                  </div>
+
+                  {/* PAN Card Upload */}
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center">
+                    <label htmlFor="pan-upload" className="cursor-pointer">
+                      <FileText className="mx-auto h-8 w-8 text-gray-400" />
+                      <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">PAN Card</span>
+                      <input
+                        id="pan-upload"
+                        type="file"
+                        className="sr-only"
+                        onChange={(e) => setPanCardPhoto(e.target.files[0])}
+                      />
+                    </label>
+                    {panCardPhoto && <span className="text-xs text-green-500">Uploaded</span>}
+                  </div>
+
+                  {/* Vehicle Photo Upload */}
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center">
+                    <label htmlFor="vehicle-upload" className="cursor-pointer">
+                      <Car className="mx-auto h-8 w-8 text-gray-400" />
+                      <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">Vehicle</span>
+                      <input
+                        id="vehicle-upload"
+                        type="file"
+                        className="sr-only"
+                        onChange={(e) => setVehiclePhoto(e.target.files[0])}
+                      />
+                    </label>
+                    {vehiclePhoto && <span className="text-xs text-green-500">Uploaded</span>}
+                  </div>
+
+                  {/* Numberplate Photo Upload */}
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center">
+                    <label htmlFor="numberplate-upload" className="cursor-pointer">
+                      <ImageIcon className="mx-auto h-8 w-8 text-gray-400" />
+                      <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">
+                        Numberplate
+                      </span>
+                      <input
+                        id="numberplate-upload"
+                        type="file"
+                        className="sr-only"
+                        onChange={(e) => setNumberplatePhoto(e.target.files[0])}
+                      />
+                    </label>
+                    {numberplatePhoto && <span className="text-xs text-green-500">Uploaded</span>}
+                  </div>
+
+                  {/* Selfie Upload - Camera Only */}
+                  <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center">
+                    <div className="cursor-pointer">
+                      <Camera className="mx-auto h-8 w-8 text-gray-400" />
+                      <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">Selfie</span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelfieFor("onboard")
+                          setShowCamera(true)
+                        }}
+                        className="mt-2 px-3 py-1 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded text-xs hover:bg-green-200 dark:hover:bg-green-800 transition-colors"
+                      >
+                        Take Photo
+                      </button>
+                    </div>
+                    {selfiePhoto && <span className="text-xs text-green-500">Captured</span>}
+                  </div>
+                </div>
+
+                {formData.driverType === "Primary" && (
+                  <div>
+                    <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Sub-drivers</h4>
+                    {subDrivers.map((subDriver, index) => (
+                      <div key={index} className="border rounded-lg p-4 mb-4 dark:border-gray-600">
+                        <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
+                          <input
+                            type="text"
+                            placeholder="Name"
+                            value={subDriver.name}
+                            onChange={(e) => handleSubDriverChange(index, "name", e.target.value)}
+                            className="p-2 border rounded dark:bg-gray-600 w-full"
+                          />
+                          <input
+                            type="email"
+                            placeholder="Email"
+                            value={subDriver.email}
+                            onChange={(e) => handleSubDriverChange(index, "email", e.target.value)}
+                            className="p-2 border rounded dark:bg-gray-600 w-full"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Phone"
+                            value={subDriver.phone}
+                            onChange={(e) => handleSubDriverChange(index, "phone", e.target.value)}
+                            className="p-2 border rounded dark:bg-gray-600 w-full"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Vehicle Type"
+                            value={subDriver.vehicleType}
+                            onChange={(e) => handleSubDriverChange(index, "vehicleType", e.target.value)}
+                            className="p-2 border rounded dark:bg-gray-600 w-full"
+                          />
+                          <input
+                            type="text"
+                            placeholder="License Plate"
+                            value={subDriver.licensePlate}
+                            onChange={(e) => handleSubDriverChange(index, "licensePlate", e.target.value)}
+                            className="p-2 border rounded dark:bg-gray-600 w-full"
+                          />
+                        </div>
+
+                        {/* Sub-driver Document Uploads */}
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-2">
+                          {/* License */}
+                          <div className="border border-dashed border-gray-300 rounded p-2 text-center">
+                            <input
+                              type="file"
+                              onChange={(e) => handleSubDriverDocumentUpload(index, "license", e.target.files[0])}
+                              className="hidden"
+                              id={`sub-license-${index}`}
+                            />
+                            <label htmlFor={`sub-license-${index}`} className="cursor-pointer">
+                              <FileText className="w-4 h-4 mx-auto text-gray-400" />
+                              <span className="text-xs">License</span>
+                            </label>
+                            {subDriver.license && <span className="text-xs text-green-500">✓</span>}
+                          </div>
+
+                          {/* PAN */}
+                          <div className="border border-dashed border-gray-300 rounded p-2 text-center">
+                            <input
+                              type="file"
+                              onChange={(e) => handleSubDriverDocumentUpload(index, "pan", e.target.files[0])}
+                              className="hidden"
+                              id={`sub-pan-${index}`}
+                            />
+                            <label htmlFor={`sub-pan-${index}`} className="cursor-pointer">
+                              <FileText className="w-4 h-4 mx-auto text-gray-400" />
+                              <span className="text-xs">PAN</span>
+                            </label>
+                            {subDriver.pan && <span className="text-xs text-green-500">✓</span>}
+                          </div>
+
+                          {/* Vehicle */}
+                          <div className="border border-dashed border-gray-300 rounded p-2 text-center">
+                            <input
+                              type="file"
+                              onChange={(e) => handleSubDriverDocumentUpload(index, "vehicle", e.target.files[0])}
+                              className="hidden"
+                              id={`sub-vehicle-${index}`}
+                            />
+                            <label htmlFor={`sub-vehicle-${index}`} className="cursor-pointer">
+                              <Car className="w-4 h-4 mx-auto text-gray-400" />
+                              <span className="text-xs">Vehicle</span>
+                            </label>
+                            {subDriver.vehicle && <span className="text-xs text-green-500">✓</span>}
+                          </div>
+
+                          {/* Numberplate */}
+                          <div className="border border-dashed border-gray-300 rounded p-2 text-center">
+                            <input
+                              type="file"
+                              onChange={(e) =>
+                                handleSubDriverDocumentUpload(index, "numberplate", e.target.files[0])
+                              }
+                              className="hidden"
+                              id={`sub-numberplate-${index}`}
+                            />
+                            <label htmlFor={`sub-numberplate-${index}`} className="cursor-pointer">
+                              <ImageIcon className="w-4 h-4 mx-auto text-gray-400" />
+                              <span className="text-xs">Plate</span>
+                            </label>
+                            {subDriver.numberplate && <span className="text-xs text-green-500">✓</span>}
+                          </div>
+
+                          {/* Selfie - Camera Only */}
+                          <div className="border border-dashed border-gray-300 rounded p-2 text-center">
                             <button
                               type="button"
                               onClick={() => {
-                                setSelfieFor("verify-admin")
+                                setSelfieFor("sub-driver-selfie")
+                                setCurrentSubDriverIndex(index)
                                 setShowCamera(true)
                               }}
-                              className="flex items-center px-6 py-3 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
+                              className="cursor-pointer"
                             >
-                              <Camera className="w-5 h-5 mr-2" />
-                              Take Photo
+                              <Camera className="w-4 h-4 mx-auto text-gray-400" />
+                              <span className="text-xs">Selfie</span>
                             </button>
+                            {subDriver.selfie && <span className="text-xs text-green-500">✓</span>}
                           </div>
-                          {adminVerificationFile && (
-                            <div className="mt-4 flex items-center justify-center text-green-600">
-                              <CheckCircle className="w-5 h-5 mr-2" />
-                              <span className="font-medium">Photo captured successfully</span>
-                            </div>
-                          )}
                         </div>
-                      </div>
-                    </div>
 
-                    <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                      <button
-                        onClick={closeModal}
-                        className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleAdminVerification}
-                        disabled={isLoading}
-                        className="px-8 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-medium hover:from-blue-600 hover:to-blue-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isLoading ? (
-                          <div className="flex items-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Verifying...
-                          </div>
-                        ) : (
-                          "Verify & Proceed"
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Driver Verification Modal */}
-                {modalType === "verify-selfie" && editDriver && (
-                  <div className="space-y-6">
-                    <div className="bg-purple-50 dark:bg-purple-900 rounded-xl p-6">
-                      <div className="flex items-center mb-4">
-                        <Camera className="w-8 h-8 text-purple-600 mr-3" />
-                        <h4 className="text-lg font-semibold text-purple-900 dark:text-purple-100">
-                          Driver Face Verification
-                        </h4>
-                      </div>
-                      <p className="text-purple-700 dark:text-purple-200">
-                        Provide a new selfie for the driver to verify against the one on record.
-                      </p>
-                    </div>
-
-                    {errors.verify && (
-                      <div className="bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-xl p-4">
-                        <div className="flex items-center">
-                          <XCircle className="w-5 h-5 text-red-600 mr-2" />
-                          <span className="text-red-700 dark:text-red-200">{errors.verify}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    <div>
-                      <label className="block text-sm font-semibold mb-3 text-gray-700 dark:text-gray-300">
-                        Capture Driver's Selfie
-                      </label>
-                      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-purple-400 transition-colors">
-                        <div className="flex items-center justify-center">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelfieFor("verify-driver")
-                              setShowCamera(true)
-                            }}
-                            className="flex items-center px-6 py-3 bg-green-50 dark:bg-green-900 text-green-600 dark:text-green-300 rounded-lg hover:bg-green-100 dark:hover:bg-green-800 transition-colors"
-                          >
-                            <Camera className="w-5 h-5 mr-2" />
-                            Take Photo
-                          </button>
-                        </div>
-                        {editDriver.verificationSelfie && (
-                          <div className="mt-4 flex items-center justify-center text-green-600">
-                            <CheckCircle className="w-5 h-5 mr-2" />
-                            <span className="font-medium">Photo captured successfully</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                      <button
-                        onClick={closeModal}
-                        className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleDriverVerification}
-                        disabled={isLoading}
-                        className="px-8 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl font-medium hover:from-purple-600 hover:to-purple-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
-                      >
-                        {isLoading ? (
-                          <div className="flex items-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Verifying Driver...
-                          </div>
-                        ) : (
-                          "Verify Driver"
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Onboard Driver Modal */}
-                {modalType === "onboard" && (
-                  <div className="space-y-6">
-                    {/* Driver Type Selection */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <button
-                        className={`p-4 rounded-lg text-center font-semibold ${formData.driverType === "Primary" ? "bg-green-600 text-white" : "bg-gray-200 dark:bg-gray-700"}`}
-                        onClick={() => setFormData({ ...formData, driverType: "Primary" })}
-                      >
-                        Primary Driver
-                      </button>
-                      <button
-                        className={`p-4 rounded-lg text-center font-semibold ${formData.driverType === "Sub-driver" ? "bg-green-600 text-white" : "bg-gray-200 dark:bg-gray-700"}`}
-                        onClick={() => setFormData({ ...formData, driverType: "Sub-driver" })}
-                      >
-                        Sub-driver
-                      </button>
-                    </div>
-
-                    {errors.form && (
-                      <div
-                        className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-                        role="alert"
-                      >
-                        {errors.form}
-                      </div>
-                    )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <input
-                          type="text"
-                          placeholder="Full Name"
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          className={`w-full p-4 border rounded-xl ${errors.name ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
-                        />
-                        {errors.name && <p className="text-red-500 text-xs italic">{errors.name}</p>}
-                      </div>
-                      <div>
-                        <input
-                          type="email"
-                          placeholder="Email"
-                          value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          className={`w-full p-4 border rounded-xl ${errors.email ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
-                        />
-                        {errors.email && <p className="text-red-500 text-xs italic">{errors.email}</p>}
-                      </div>
-                      <div className="md:col-span-2">
-                        <input
-                          type="text"
-                          placeholder="Phone"
-                          value={formData.phone}
-                          onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                          className={`w-full p-4 border rounded-xl ${errors.phone ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
-                        />
-                        {errors.phone && <p className="text-red-500 text-xs italic">{errors.phone}</p>}
-                      </div>
-                    </div>
-
-                    {/* Vehicle information for both primary and sub-drivers */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <input
-                          type="text"
-                          placeholder="Vehicle Type"
-                          value={formData.vehicleType}
-                          onChange={(e) => setFormData({ ...formData, vehicleType: e.target.value })}
-                          className={`w-full p-4 border rounded-xl ${errors.vehicleType ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
-                        />
-                        {errors.vehicleType && <p className="text-red-500 text-xs italic">{errors.vehicleType}</p>}
-                      </div>
-                      <div>
-                        <input
-                          type="text"
-                          placeholder="License Plate"
-                          value={formData.licensePlate}
-                          onChange={(e) => setFormData({ ...formData, licensePlate: e.target.value.toUpperCase() })}
-                          className={`w-full p-4 border rounded-xl ${errors.licensePlate ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
-                        />
-                        {errors.licensePlate && <p className="text-red-500 text-xs italic">{errors.licensePlate}</p>}
-                      </div>
-                    </div>
-
-                    {formData.driverType === "Sub-driver" && (
-                      <div>
-                        <select
-                          value={formData.primaryDriver}
-                          onChange={(e) => setFormData({ ...formData, primaryDriver: e.target.value })}
-                          className={`w-full p-4 border rounded-xl ${errors.primaryDriver ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
-                        >
-                          <option value="">Select Primary Driver</option>
-                          {primaryDrivers.map((d) => (
-                            <option key={d._id} value={d._id}>
-                              {d.name}
-                            </option>
-                          ))}
-                        </select>
-                        {errors.primaryDriver && <p className="text-red-500 text-xs italic">{errors.primaryDriver}</p>}
-                      </div>
-                    )}
-
-                    {/* Document Uploads - Enhanced for all drivers */}
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-                      {/* License Upload */}
-                      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center">
-                        <label htmlFor="license-upload" className="cursor-pointer">
-                          <FileText className="mx-auto h-8 w-8 text-gray-400" />
-                          <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">License</span>
-                          <input
-                            id="license-upload"
-                            type="file"
-                            className="sr-only"
-                            onChange={(e) => setLicensePhoto(e.target.files[0])}
-                          />
-                        </label>
-                        {licensePhoto && <span className="text-xs text-green-500">Uploaded</span>}
-                      </div>
-
-                      {/* PAN Card Upload */}
-                      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center">
-                        <label htmlFor="pan-upload" className="cursor-pointer">
-                          <FileText className="mx-auto h-8 w-8 text-gray-400" />
-                          <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">PAN Card</span>
-                          <input
-                            id="pan-upload"
-                            type="file"
-                            className="sr-only"
-                            onChange={(e) => setPanCardPhoto(e.target.files[0])}
-                          />
-                        </label>
-                        {panCardPhoto && <span className="text-xs text-green-500">Uploaded</span>}
-                      </div>
-
-                      {/* Vehicle Photo Upload */}
-                      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center">
-                        <label htmlFor="vehicle-upload" className="cursor-pointer">
-                          <Car className="mx-auto h-8 w-8 text-gray-400" />
-                          <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">Vehicle</span>
-                          <input
-                            id="vehicle-upload"
-                            type="file"
-                            className="sr-only"
-                            onChange={(e) => setVehiclePhoto(e.target.files[0])}
-                          />
-                        </label>
-                        {vehiclePhoto && <span className="text-xs text-green-500">Uploaded</span>}
-                      </div>
-
-                      {/* Numberplate Photo Upload */}
-                      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center">
-                        <label htmlFor="numberplate-upload" className="cursor-pointer">
-                          <ImageIcon className="mx-auto h-8 w-8 text-gray-400" />
-                          <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">
-                            Numberplate
-                          </span>
-                          <input
-                            id="numberplate-upload"
-                            type="file"
-                            className="sr-only"
-                            onChange={(e) => setNumberplatePhoto(e.target.files[0])}
-                          />
-                        </label>
-                        {numberplatePhoto && <span className="text-xs text-green-500">Uploaded</span>}
-                      </div>
-
-                      {/* Selfie Upload - Camera Only */}
-                      <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center">
-                        <div className="cursor-pointer">
-                          <Camera className="mx-auto h-8 w-8 text-gray-400" />
-                          <span className="mt-2 block text-sm font-medium text-gray-900 dark:text-white">Selfie</span>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelfieFor("onboard")
-                              setShowCamera(true)
-                            }}
-                            className="mt-2 px-3 py-1 bg-green-100 dark:bg-green-900 text-green-600 dark:text-green-300 rounded text-xs hover:bg-green-200 dark:hover:bg-green-800 transition-colors"
-                          >
-                            Take Photo
-                          </button>
-                        </div>
-                        {selfiePhoto && <span className="text-xs text-green-500">Captured</span>}
-                      </div>
-                    </div>
-
-                    {formData.driverType === "Primary" && (
-                      <div>
-                        <h4 className="font-semibold mb-2 text-gray-900 dark:text-white">Sub-drivers</h4>
-                        {subDrivers.map((subDriver, index) => (
-                          <div key={index} className="border rounded-lg p-4 mb-4 dark:border-gray-600">
-                            <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-4">
-                              <input
-                                type="text"
-                                placeholder="Name"
-                                value={subDriver.name}
-                                onChange={(e) => handleSubDriverChange(index, "name", e.target.value)}
-                                className="p-2 border rounded dark:bg-gray-600 w-full"
-                              />
-                              <input
-                                type="email"
-                                placeholder="Email"
-                                value={subDriver.email}
-                                onChange={(e) => handleSubDriverChange(index, "email", e.target.value)}
-                                className="p-2 border rounded dark:bg-gray-600 w-full"
-                              />
-                              <input
-                                type="text"
-                                placeholder="Phone"
-                                value={subDriver.phone}
-                                onChange={(e) => handleSubDriverChange(index, "phone", e.target.value)}
-                                className="p-2 border rounded dark:bg-gray-600 w-full"
-                              />
-                              <input
-                                type="text"
-                                placeholder="Vehicle Type"
-                                value={subDriver.vehicleType}
-                                onChange={(e) => handleSubDriverChange(index, "vehicleType", e.target.value)}
-                                className="p-2 border rounded dark:bg-gray-600 w-full"
-                              />
-                              <input
-                                type="text"
-                                placeholder="License Plate"
-                                value={subDriver.licensePlate}
-                                onChange={(e) => handleSubDriverChange(index, "licensePlate", e.target.value)}
-                                className="p-2 border rounded dark:bg-gray-600 w-full"
-                              />
-                            </div>
-
-                            {/* Sub-driver Document Uploads */}
-                            <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-2">
-                              {/* License */}
-                              <div className="border border-dashed border-gray-300 rounded p-2 text-center">
-                                <input
-                                  type="file"
-                                  onChange={(e) => handleSubDriverDocumentUpload(index, "license", e.target.files[0])}
-                                  className="hidden"
-                                  id={`sub-license-${index}`}
-                                />
-                                <label htmlFor={`sub-license-${index}`} className="cursor-pointer">
-                                  <FileText className="w-4 h-4 mx-auto text-gray-400" />
-                                  <span className="text-xs">License</span>
-                                </label>
-                                {subDriver.license && <span className="text-xs text-green-500">✓</span>}
-                              </div>
-
-                              {/* PAN */}
-                              <div className="border border-dashed border-gray-300 rounded p-2 text-center">
-                                <input
-                                  type="file"
-                                  onChange={(e) => handleSubDriverDocumentUpload(index, "pan", e.target.files[0])}
-                                  className="hidden"
-                                  id={`sub-pan-${index}`}
-                                />
-                                <label htmlFor={`sub-pan-${index}`} className="cursor-pointer">
-                                  <FileText className="w-4 h-4 mx-auto text-gray-400" />
-                                  <span className="text-xs">PAN</span>
-                                </label>
-                                {subDriver.pan && <span className="text-xs text-green-500">✓</span>}
-                              </div>
-
-                              {/* Vehicle */}
-                              <div className="border border-dashed border-gray-300 rounded p-2 text-center">
-                                <input
-                                  type="file"
-                                  onChange={(e) => handleSubDriverDocumentUpload(index, "vehicle", e.target.files[0])}
-                                  className="hidden"
-                                  id={`sub-vehicle-${index}`}
-                                />
-                                <label htmlFor={`sub-vehicle-${index}`} className="cursor-pointer">
-                                  <Car className="w-4 h-4 mx-auto text-gray-400" />
-                                  <span className="text-xs">Vehicle</span>
-                                </label>
-                                {subDriver.vehicle && <span className="text-xs text-green-500">✓</span>}
-                              </div>
-
-                              {/* Numberplate */}
-                              <div className="border border-dashed border-gray-300 rounded p-2 text-center">
-                                <input
-                                  type="file"
-                                  onChange={(e) =>
-                                    handleSubDriverDocumentUpload(index, "numberplate", e.target.files[0])
-                                  }
-                                  className="hidden"
-                                  id={`sub-numberplate-${index}`}
-                                />
-                                <label htmlFor={`sub-numberplate-${index}`} className="cursor-pointer">
-                                  <ImageIcon className="w-4 h-4 mx-auto text-gray-400" />
-                                  <span className="text-xs">Plate</span>
-                                </label>
-                                {subDriver.numberplate && <span className="text-xs text-green-500">✓</span>}
-                              </div>
-
-                              {/* Selfie - Camera Only */}
-                              <div className="border border-dashed border-gray-300 rounded p-2 text-center">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setSelfieFor("sub-driver-selfie")
-                                    setCurrentSubDriverIndex(index)
-                                    setShowCamera(true)
-                                  }}
-                                  className="cursor-pointer"
-                                >
-                                  <Camera className="w-4 h-4 mx-auto text-gray-400" />
-                                  <span className="text-xs">Selfie</span>
-                                </button>
-                                {subDriver.selfie && <span className="text-xs text-green-500">✓</span>}
-                              </div>
-                            </div>
-
-                            <button
-                              onClick={() => handleRemoveSubDriver(index)}
-                              className="mt-2 p-2 bg-red-500 text-white rounded flex items-center"
-                            >
-                              <UserMinus className="w-4 h-4 mr-1" /> Remove
-                            </button>
-                          </div>
-                        ))}
                         <button
-                          onClick={handleAddSubDriver}
-                          className="mt-2 p-2 bg-green-500 text-white rounded flex items-center"
+                          onClick={() => handleRemoveSubDriver(index)}
+                          className="mt-2 p-2 bg-red-500 text-white rounded flex items-center"
                         >
-                          <UserPlus className="w-4 h-4 mr-1" /> Add Sub-driver
+                          <UserMinus className="w-4 h-4 mr-1" /> Remove
                         </button>
                       </div>
-                    )}
-
-                    <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                      <button
-                        onClick={closeModal}
-                        className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleConfirm}
-                        disabled={isLoading}
-                        className="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium hover:from-green-600 hover:to-green-700 disabled:opacity-50"
-                      >
-                        {isLoading ? "Saving..." : "Save Driver"}
-                      </button>
-                    </div>
+                    ))}
+                    <button
+                      onClick={handleAddSubDriver}
+                      className="mt-2 p-2 bg-green-500 text-white rounded flex items-center"
+                    >
+                      <UserPlus className="w-4 h-4 mr-1" /> Add Sub-driver
+                    </button>
                   </div>
                 )}
 
-                {/* Edit Driver Modal */}
-                {modalType === "manage" && editDriver && (
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="block text-sm font-medium mb-1 dark:text-gray-300">Full Name</label>
-                        <input
-                          type="text"
-                          value={editDriver.name}
-                          onChange={(e) => setEditDriver({ ...editDriver, name: e.target.value })}
-                          className={`w-full p-4 border rounded-xl ${errors.name ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1 dark:text-gray-300">Email</label>
-                        <input
-                          type="email"
-                          value={editDriver.email}
-                          onChange={(e) => setEditDriver({ ...editDriver, email: e.target.value })}
-                          className={`w-full p-4 border rounded-xl ${errors.email ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
-                        />
-                      </div>
-                      <div className="md:col-span-2">
-                        <label className="block text-sm font-medium mb-1 dark:text-gray-300">Phone</label>
-                        <input
-                          type="text"
-                          value={editDriver.phone}
-                          onChange={(e) => setEditDriver({ ...editDriver, phone: e.target.value })}
-                          className={`w-full p-4 border rounded-xl ${errors.phone ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
-                        />
-                      </div>
-                      {/* Vehicle information for all drivers */}
-                      <div>
-                        <label className="block text-sm font-medium mb-1 dark:text-gray-300">Vehicle Type</label>
-                        <input
-                          type="text"
-                          value={editDriver.vehicleType || ""}
-                          onChange={(e) => setEditDriver({ ...editDriver, vehicleType: e.target.value })}
-                          className={`w-full p-4 border rounded-xl ${errors.vehicleType ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-1 dark:text-gray-300">License Plate</label>
-                        <input
-                          type="text"
-                          value={editDriver.licensePlate || ""}
-                          onChange={(e) => setEditDriver({ ...editDriver, licensePlate: e.target.value.toUpperCase() })}
-                          className={`w-full p-4 border rounded-xl ${errors.licensePlate ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
-                        />
-                      </div>
-                    </div>
-                    <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
-                      <button
-                        onClick={closeModal}
-                        className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        onClick={handleUpdate}
-                        disabled={isLoading}
-                        className="px-8 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50"
-                      >
-                        {isLoading ? "Updating..." : "Update Driver"}
-                      </button>
-                    </div>
+                <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={closeModal}
+                    className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleConfirm}
+                    disabled={isLoading}
+                    className="px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium hover:from-green-600 hover:to-green-700 disabled:opacity-50"
+                  >
+                    {isLoading ? "Saving..." : "Save Driver"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Edit Driver Modal */}
+            {modalType === "manage" && editDriver && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium mb-1 dark:text-gray-300">Full Name</label>
+                    <input
+                      type="text"
+                      value={editDriver.name}
+                      onChange={(e) => setEditDriver({ ...editDriver, name: e.target.value })}
+                      className={`w-full p-4 border rounded-xl ${errors.name ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
+                    />
                   </div>
-                )}
+                  <div>
+                    <label className="block text-sm font-medium mb-1 dark:text-gray-300">Email</label>
+                    <input
+                      type="email"
+                      value={editDriver.email}
+                      onChange={(e) => setEditDriver({ ...editDriver, email: e.target.value })}
+                      className={`w-full p-4 border rounded-xl ${errors.email ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium mb-1 dark:text-gray-300">Phone</label>
+                    <input
+                      type="text"
+                      value={editDriver.phone}
+                      onChange={(e) => setEditDriver({ ...editDriver, phone: e.target.value })}
+                      className={`w-full p-4 border rounded-xl ${errors.phone ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
+                    />
+                  </div>
+                  {/* Vehicle information for all drivers */}
+                  <div>
+                    <label className="block text-sm font-medium mb-1 dark:text-gray-300">Vehicle Type</label>
+                    <input
+                      type="text"
+                      value={editDriver.vehicleType || ""}
+                      onChange={(e) => setEditDriver({ ...editDriver, vehicleType: e.target.value })}
+                      className={`w-full p-4 border rounded-xl ${errors.vehicleType ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1 dark:text-gray-300">License Plate</label>
+                    <input
+                      type="text"
+                      value={editDriver.licensePlate || ""}
+                      onChange={(e) => setEditDriver({ ...editDriver, licensePlate: e.target.value.toUpperCase() })}
+                      className={`w-full p-4 border rounded-xl ${errors.licensePlate ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <button
+                    onClick={closeModal}
+                    className="px-6 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-xl font-medium hover:bg-gray-300 dark:hover:bg-gray-600"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleUpdate}
+                    disabled={isLoading}
+                    className="px-8 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {isLoading ? "Updating..." : "Update Driver"}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
-        )}
-
-        {/* Enhanced Camera View */}
-        {showCamera && (
-          <div className="fixed inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-center z-[100]">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-2xl w-full mx-4 shadow-2xl">
-              <div className="text-center mb-6">
-                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Take a Photo</h3>
-                <p className="text-gray-600 dark:text-gray-400">
-                  Position yourself in the center and click capture when ready
-                </p>
-              </div>
-
-              <div className="relative rounded-2xl overflow-hidden mb-6 bg-gray-100 dark:bg-gray-700">
-                <video ref={videoRef} autoPlay playsInline className="w-full h-80 object-cover" />
-                <div className="absolute inset-0 border-4 border-dashed border-white opacity-50 m-8 rounded-2xl"></div>
-              </div>
-
-              <div className="flex justify-center gap-6">
-                <button
-                  onClick={handleCaptureSelfie}
-                  className="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 flex items-center"
-                >
-                  <Camera className="w-5 h-5 mr-2" />
-                  Capture Photo
-                </button>
-                <button
-                  onClick={() => setShowCamera(false)}
-                  className="px-8 py-4 bg-gray-500 hover:bg-gray-600 text-white rounded-xl font-semibold transition-all flex items-center"
-                >
-                  <X className="w-5 h-5 mr-2" />
-                  Cancel
-                </button>
-              </div>
             </div>
-          </div>
-        )}
+    </div>
+  )
+}
+
+{/* Enhanced Camera View */ }
+{
+  showCamera && (
+    <div className="fixed inset-0 bg-black bg-opacity-90 flex flex-col items-center justify-center z-[100]">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-2xl w-full mx-4 shadow-2xl">
+        <div className="text-center mb-6">
+          <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Take a Photo</h3>
+          <p className="text-gray-600 dark:text-gray-400">
+            Position yourself in the center and click capture when ready
+          </p>
+        </div>
+
+        <div className="relative rounded-2xl overflow-hidden mb-6 bg-gray-100 dark:bg-gray-700">
+          <video ref={videoRef} autoPlay playsInline className="w-full h-80 object-cover" />
+          <div className="absolute inset-0 border-4 border-dashed border-white opacity-50 m-8 rounded-2xl"></div>
+        </div>
+
+        <div className="flex justify-center gap-6">
+          <button
+            onClick={handleCaptureSelfie}
+            className="px-8 py-4 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-semibold hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105 flex items-center"
+          >
+            <Camera className="w-5 h-5 mr-2" />
+            Capture Photo
+          </button>
+          <button
+            onClick={() => setShowCamera(false)}
+            className="px-8 py-4 bg-gray-500 hover:bg-gray-600 text-white rounded-xl font-semibold transition-all flex items-center"
+          >
+            <X className="w-5 h-5 mr-2" />
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
+  )
+}
+      </div >
+    </div >
   )
 }
