@@ -54,7 +54,7 @@ export default function Login() {
       }
 
       // Simulate API call - replace with your actual API endpoint
-      const response = await axios.post("https://panalsbackend-production.up.railway.app/api/auth/send-otp", {
+      const response = await axios.post("https://idharudhar-backend-2.onrender.com/api/auth/send-otp", {
         email: email,
       });
 
@@ -86,7 +86,7 @@ export default function Login() {
       const otpCode = otp.join("");
 
       // Simulate API call - replace with your actual API endpoint
-      const response = await axios.post("https://panalsbackend-production.up.railway.app/api/auth/verify-otp", {
+      const response = await axios.post("https://idharudhar-backend-2.onrender.com/api/auth/verify-otp", {
         email: email,
         otp: otpCode,
       });
@@ -114,7 +114,7 @@ export default function Login() {
     setError("");
 
     try {
-      await axios.post("https://panalsbackend-production.up.railway.app/api/auth/send-otp", {
+      await axios.post("https://idharudhar-backend-2.onrender.com/api/auth/send-otp", {
         email: email,
       });
 
