@@ -235,7 +235,7 @@ const NoResults = ({ searchTerm, onReset }) => {
   return (
     <div className="flex flex-col items-center rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 py-16 px-8 text-center">
       <div className="mb-4 text-6xl opacity-50">🔍</div>
-      <h3 className="mb-2 text-xl font-bold text-gray-800 dark:text-white">No rides found</h3>
+      <h3 className="mb-2 text-xl font-bold text-gray-800 dark:text-white">No trips found</h3>
       <p className="mb-6 text-gray-600 dark:text-gray-400">
         {searchTerm
           ? "Try adjusting your search or filter criteria"
@@ -576,7 +576,7 @@ export default function RidesManagement() {
 
     showToast({
       title: "Status Updated",
-      description: `Ride ${data.rideCode} status changed to ${data.status}`,
+      description: `Trip ${data.rideCode} status changed to ${data.status}`,
       variant: "default",
     });
   };
@@ -602,7 +602,7 @@ export default function RidesManagement() {
         prev && prev._id === rideId ? { ...prev, status: newStatus } : prev
       );
     } catch (error) {
-      console.error("Failed to update ride status:", error);
+      console.error("Failed to update trip status:", error);
     }
   };
 

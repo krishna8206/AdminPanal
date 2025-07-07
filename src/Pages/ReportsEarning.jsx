@@ -535,7 +535,7 @@ export default function ReportsEarning() {
 
   const handleExport = () => {
     const csvData = [
-      ["Date", "Earnings", "Rides", "Cancellations"],
+      ["Date", "Earnings", "Trips", "Cancellations"],
       ...chartData.map((item) => [item.name, item.earnings || 0, item.rides || 0, item.cancellations || 0]),
     ]
 
