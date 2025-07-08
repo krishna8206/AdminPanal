@@ -69,7 +69,7 @@ export default function LiveTracking() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen bg-black transition-colors duration-300">
       {/* Main content area */}
       <div className="p-6">
         <div className="mb-6">
@@ -82,7 +82,7 @@ export default function LiveTracking() {
         <div className="mt-6 grid mb-4 grid-cols-1 md:grid-cols-5 gap-4">
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center space-x-2">
-              <Car className="w-5 h-5 text-green-500 dark:text-green-400" />
+              <Car className="w-5 h-5 text-orange-600" />
               <div>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">Active Trips</p>
                 <p className="text-gray-800 dark:text-white text-xl font-bold">
@@ -94,7 +94,7 @@ export default function LiveTracking() {
 
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center space-x-2">
-              <User className="w-5 h-5 text-green-500 dark:text-green-400" />
+              <User className="w-5 h-5 text-orange-600" />
               <div>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">Total Drivers</p>
                 <p className="text-gray-800 dark:text-white text-xl font-bold">{drivers.length}</p>
@@ -104,7 +104,7 @@ export default function LiveTracking() {
 
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center space-x-2">
-              <Clock className="w-5 h-5 text-green-500 dark:text-green-400" />
+              <Clock className="w-5 h-5 text-orange-600" />
               <div>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">Avg ETA</p>
                 <p className="text-gray-800 dark:text-white text-xl font-bold">12 min</p>
@@ -114,7 +114,7 @@ export default function LiveTracking() {
 
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center space-x-2">
-              <MapPin className="w-5 h-5 text-green-500 dark:text-green-400" />
+              <MapPin className="w-5 h-5 text-orange-600" />
               <div>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">Per Km Earning</p>
                 <p className="text-gray-800 dark:text-white text-xl font-bold">₹25/km</p>
@@ -124,7 +124,7 @@ export default function LiveTracking() {
 
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center space-x-2">
-              <MapPin className="w-5 h-5 text-green-500 dark:text-green-400" />
+              <MapPin className="w-5 h-5 text-orange-600" />
               <div>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">Coverage Area</p>
                 <p className="text-gray-800 dark:text-white text-xl font-bold">25 km</p>
@@ -219,7 +219,7 @@ export default function LiveTracking() {
                 <div
                   key={driver.id}
                   className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 ${selectedDriver?.id === driver.id
-                      ? "border-green-500 dark:border-green-400 bg-green-50 dark:bg-green-400/10"
+                      ? "border-orange-500 bg-orange-400/10"
                       : "border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500"
                     }`}
                   onClick={() => handleDriverClick(driver)}
@@ -271,7 +271,7 @@ export default function LiveTracking() {
 
                   {driver.status === "active" && (
                     <div className="mt-3 flex space-x-2">
-                      <button className="flex-1 bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 text-white py-1 px-3 rounded text-xs transition-colors">
+                      <button className="flex-1 bg-orange-600 text-white py-1 px-3 rounded text-xs">
                         Track
                       </button>
                       <button className="flex-1 bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-white py-1 px-3 rounded text-xs transition-colors">

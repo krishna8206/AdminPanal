@@ -4,7 +4,7 @@ import { io } from "socket.io-client"
 let socket = null
 
 // Socket configuration
-const SOCKET_URL = "https://panalsbackend-production.up.railway.app" // Make sure this matches your server port
+const SOCKET_URL = "https://panalsbackend.onrender.com" // Make sure this matches your server port
 const SOCKET_OPTIONS = {
   transports: ["websocket", "polling"],
   reconnectionAttempts: Number.POSITIVE_INFINITY, // Never stop trying to reconnect

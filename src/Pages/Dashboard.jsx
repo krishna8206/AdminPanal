@@ -361,7 +361,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDrivers = async () => {
       try {
-        const response = await fetch("https://panalsbackend-production.up.railway.app/api/driver")
+        const response = await fetch("https://panalsbackend.onrender.com/api/driver")
         const data = await response.json()
         if (data.success) {
           setDrivers(data.data)
@@ -377,7 +377,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchRecentRides = async () => {
       try {
-        const response = await fetch("https://panalsbackend-production.up.railway.app/api/dashboard/recent-rides")
+        const response = await fetch("https://panalsbackend.onrender.com/api/dashboard/recent-rides")
         const data = await response.json()
         setRecentRides(data)
       } catch (error) {
@@ -579,7 +579,7 @@ export default function Dashboard() {
 
     try {
       setRecentRides(newRides)
-      console.log("✅ Recent rides updated successfully")
+      console.log("✅ Recent trips updated successfully")
     } catch (error) {
       console.error("❌ Error updating recent trips:", error)
     }
@@ -736,7 +736,7 @@ export default function Dashboard() {
     }
 
     console.log("Initializing socket connection...")
-    const newSocket = io("https://panalsbackend-production.up.railway.app", {
+    const newSocket = io("https://panalsbackend.onrender.com", {
       timeout: 20000,
       reconnection: true,
       reconnectionDelay: 1000,
@@ -893,7 +893,7 @@ export default function Dashboard() {
   }, {})
 
   const serviceDistributionData = {
-    labels: ["Trips", "Food Delivery", "Courier Delivery"],
+    labels: ["Trips", "Food Delivery", "Parcel Delivery"],
     datasets: [
       {
         data: [serviceCounts["Trip"] || 0, serviceCounts["Food-Delivery"] || 0, serviceCounts["Courier-Delivery"] || 0],
@@ -910,7 +910,7 @@ export default function Dashboard() {
   }, [activeTab])
 
   return (
-    <div className="min-h-screen w-full bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+    <div className="min-h-screen w-full bg-black transition-colors duration-300">
       {/* Dashboard Content */}
       <div className="p-4 md:p-6">
         <div className="flex justify-between items-center mb-4 md:mb-6">
@@ -947,7 +947,7 @@ export default function Dashboard() {
               <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
                   <h2 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                    <div className="w-7 h-7 bg-blue-500 rounded-lg flex items-center justify-center">
+                    <div className="w-7 h-7 bg-orange-500 rounded-lg flex items-center justify-center">
                       <FaCar className="text-white text-xs" />
                     </div>
                     Live Vehicle Tracking - Ahmedabad
@@ -1124,13 +1124,13 @@ export default function Dashboard() {
               <div className="bg-gray-50 dark:bg-gray-900 border-l border-gray-200 dark:border-gray-700">
                 <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                   <h3 className="text-base font-semibold text-gray-800 dark:text-white flex items-center gap-2">
-                    <FaUserAlt className="text-blue-500 text-sm" />
+                    <FaUserAlt className="text-orange-600 text-sm" />
                     Filtered Drivers ({filteredDrivers.length})
                   </h3>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                     {vehicleTypeFilter !== "all" ? `${vehicleTypeFilter} drivers` : "All vehicle types"}
                     {statusFilter !== "all" ? ` - ${statusFilter} status` : ""}
-                  </p>
+                  </p>  
                 </div>
 
                 <div className="h-[340px] overflow-y-auto">
@@ -1138,7 +1138,7 @@ export default function Dashboard() {
                     {filteredDrivers.map((driver) => (
                       <div
                         key={driver._id}
-                        className={`bg-white dark:bg-gray-800 rounded-md p-3 border transition-all cursor-pointer ${
+                        className={`bg-gray-800 rounded-md p-3 border transition-all cursor-pointer ${
                           selectedDriver?._id === driver._id
                             ? "border-blue-500 shadow-sm"
                             : "border-gray-200 dark:border-gray-700"
@@ -1150,7 +1150,7 @@ export default function Dashboard() {
                             <div
                               className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-semibold ${
                                 driver.status === "idle"
-                                  ? "bg-green-500"
+                                  ? "bg-orange-500"
                                   : driver.status === "active"
                                     ? "bg-yellow-500"
                                     : driver.status === "emergency"
@@ -1207,7 +1207,7 @@ export default function Dashboard() {
                             }}
                             className={`flex-1 flex items-center justify-center gap-1 py-1 px-2 rounded-md text-xs font-medium ${
                               driver.phone
-                                ? "bg-blue-500 hover:bg-blue-600 text-white"
+                                ? "bg-orange-600 hover:bg-orange-500 text-white"
                                 : "bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
                             }`}
                             disabled={!driver.phone}
@@ -1454,7 +1454,7 @@ export default function Dashboard() {
             <div className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-4 md:mb-6 gap-3">
                 <h2 className="text-lg md:text-xl font-bold text-gray-800 dark:text-white">
-                  Recent Courier Deliveries (This Month)
+                  Recent Parcel Deliveries (This Month)
                 </h2>
               </div>
 
@@ -1518,7 +1518,7 @@ export default function Dashboard() {
                                     </div>
                                     <div className="ml-2 md:ml-4">
                                       <div className="text-sm font-medium text-gray-900 dark:text-white capitalize">
-                                        Courier Delivery
+                                        Parcel Delivery
                                       </div>
                                       <div className="text-xs md:text-sm text-gray-500 dark:text-gray-400 capitalize">
                                         {ride.type}
@@ -1561,10 +1561,10 @@ export default function Dashboard() {
                                   <FaTruck className="text-4xl mx-auto mb-2" />
                                 </div>
                                 <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">
-                                  No courier deliveries this month
+                                  No parcel deliveries this month
                                 </p>
                                 <p className="text-gray-400 dark:text-gray-500 text-sm">
-                                  No courier delivery activities found for the current month
+                                  No parcel delivery activities found for the current month
                                 </p>
                               </div>
                             </td>
@@ -1612,7 +1612,7 @@ export default function Dashboard() {
           <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md overflow-hidden">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
               <h3 className="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                <FaChartLine className="text-blue-500" />
+                <FaChartLine className="text-orange-600" />
                 Performance Summary
               </h3>
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">Comparative analysis of key metrics</p>
@@ -1751,26 +1751,26 @@ export default function Dashboard() {
               </div>
 
               {/* Quick Stats */}
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-3 border border-blue-200 dark:border-blue-800">
+              <div className="bg-orange-900/20 rounded-lg p-3 border border-orange-800">
                 <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">Quick Stats</h4>
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-blue-600 dark:text-blue-400">Active Drivers</span>
-                    <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                    <span className="text-xs text-orange-400">Active Drivers</span>
+                    <span className="text-sm font-medium text-orange-200">
                       {drivers.filter((d) => d.status === "active" || d.status === "idle").length}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-blue-600 dark:text-blue-400">Avg. Rating</span>
-                    <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                    <span className="text-xs text-orange-400">Avg. Rating</span>
+                    <span className="text-sm font-medium text-orange-200">
                       {drivers.length > 0
                         ? (drivers.reduce((sum, d) => sum + (d.rating || 0), 0) / drivers.length).toFixed(1)
                         : "N/A"}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-blue-600 dark:text-blue-400">Total Trips</span>
-                    <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                    <span className="text-xs text-orange-400">Total Trips</span>
+                    <span className="text-sm font-medium text-orange-200">
                       {drivers.reduce((sum, d) => sum + (d.completedTrips || 0), 0)}
                     </span>
                   </div>

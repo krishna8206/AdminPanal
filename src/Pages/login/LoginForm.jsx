@@ -54,7 +54,7 @@ export default function Login() {
       }
 
       // Simulate API call - replace with your actual API endpoint
-      const response = await axios.post("https://idharudhar-backend-2.onrender.com/api/auth/send-otp", {
+      const response = await axios.post("https://panalsbackend.onrender.com/api/auth/send-otp", {
         email: email,
       });
 

@@ -15,6 +15,7 @@ import {
   Users,
   Wifi,
   WifiOff,
+  IndianRupee
 } from "lucide-react"
 import { useAdminSocket } from "../hooks/useSocket"
 
@@ -79,7 +80,7 @@ const SkeletonLoader = () => {
 // Role definitions
 const roles = [
   { value: "super_admin", label: "Super Admin", icon: <Users className="text-purple-500" /> },
-  { value: "finance", label: "Finance", icon: <DollarSign className="text-green-500" /> },
+  { value: "finance", label: "Finance", icon: <IndianRupee className="text-green-500" /> },
   { value: "support", label: "Support", icon: <Headphones className="text-blue-500" /> },
 ]
 
@@ -93,7 +94,7 @@ const permissionCategories = [
 ]
 
 // API base URL
-const API_BASE_URL = "https://panalsbackend-production.up.railway.app/api"
+const API_BASE_URL = "https://panalsbackend.onrender.com/api"
 
 export default function AdminManagement() {
   const [admins, setAdmins] = useState([])
@@ -458,7 +459,7 @@ export default function AdminManagement() {
   }
 
   return (
-    <div className="p-4 bg-gray-100 dark:bg-gray-900 min-h-screen">
+    <div className="p-4 bg-black min-h-screen">
       <div className="max-w-7xl mx-auto">
         {/* Connection Status */}
         <div className="mb-4 flex items-center gap-2">
@@ -497,7 +498,7 @@ export default function AdminManagement() {
         )}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white flex items-center gap-2">
-            <UserShield className="text-blue-500" />
+            <UserShield className="text-orange-500" />
             Admin Management
             {isConnected && <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse ml-2"></div>}
           </h1>
@@ -585,8 +586,8 @@ export default function AdminManagement() {
                     <tr key={admin.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
-                            <UserCog className="text-blue-500 w-5 h-5" />
+                          <div className="flex-shrink-0 h-10 w-10 rounded-full bg-orange-900 flex items-center justify-center">
+                            <UserCog className="text-orange-500 w-5 h-5" />
                           </div>
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900 dark:text-white">{admin.name}</div>

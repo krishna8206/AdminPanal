@@ -22,7 +22,7 @@ import autoTable from "jspdf-autotable"
 import { useBillingSocket } from "../hooks/useSocket"
 
 // API base URL
-const API_BASE_URL = "https://panalsbackend-production.up.railway.app/api"
+const API_BASE_URL = "https://panalsbackend.onrender.com/api"
 
 export default function BillingPage() {
   // State for invoices data

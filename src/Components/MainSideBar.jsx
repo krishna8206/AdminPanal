@@ -19,7 +19,7 @@ import {
 
 const menuItems = [
       {
-      title: "DashBoard",
+      title: "Dashboard",
       icon: "fas fa-home",
       url: "",
     },
@@ -79,7 +79,7 @@ export default function MainSideBar({ isOpen, onToggle, logout }) {
 
       {/* Sidebar */}
       <div className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-gray-950 border-r border-gray-800 transform transition-transform duration-300 ease-in-out
+        fixed inset-y-0 left-0 z-50 w-64 bg-black border-r border-gray-800 transform transition-transform duration-300 ease-in-out
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
         md:relative md:translate-x-0 md:block
       `}>
@@ -99,7 +99,7 @@ export default function MainSideBar({ isOpen, onToggle, logout }) {
                       ${active ? 'bg-green-600 text-white' : 'text-gray-300 hover:text-white hover:bg-gray-800'}
                     `}
                   >
-                    <i className={`h-5 w-5 flex-shrink-0 ${icon}`} />
+                    <i className={`h-5 w-5 text-orange-600 flex-shrink-0 ${icon}`} />
                     <span className="font-medium truncate">{title}</span>
                   </Link>
                 );
@@ -108,9 +108,9 @@ export default function MainSideBar({ isOpen, onToggle, logout }) {
           </div>
 
           {/* Footer */}
-          <div className="border-t border-gray-800 bg-[#050505] p-4">
+          {/* <div className="border-t border-gray-800 bg-[#050505] p-4">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center">
                 <User className="h-4 w-4 text-white" />
               </div>
               <div className="flex-1">
@@ -121,7 +121,7 @@ export default function MainSideBar({ isOpen, onToggle, logout }) {
                 <LogOut className="h-4 w-4" />
               </button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
 

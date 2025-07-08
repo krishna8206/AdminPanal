@@ -13,26 +13,26 @@ import useRideWebSocket from "../useRideWebSocket/useRideWebSocket";
 // Mock API functions
 const api = {
   getRides: async (status) => {
-    const res = await axios.get("https://panalsbackend-production.up.railway.app/api/rides", {
+    const res = await axios.get("https://panalsbackend.onrender.com/api/rides", {
       params: status ? { status } : {},
     });
     return res.data;
   },
 
   postRide: async (rideData) => {
-    const res = await axios.post("https://panalsbackend-production.up.railway.app/api/rides", rideData);
+    const res = await axios.post("https://panalsbackend.onrender.com/api/rides", rideData);
     return res.data;
   },
 
   // ✅ Add this function for status update
   updateRideStatus: async (rideId, status) => {
-    const res = await axios.put(`https://panalsbackend-production.up.railway.app/api/rides/${rideId}/status`, { status });
+    const res = await axios.put(`https://panalsbackend.onrender.com/api/rides/${rideId}/status`, { status });
     return res.data;
   },
 
   // ✅ Add this if you're calling getRideLogs (optional, based on your UI)
   getRideLogs: async (rideId) => {
-    const res = await axios.get(`https://panalsbackend-production.up.railway.app/api/rides/${rideId}/logs`);
+    const res = await axios.get(`https://panalsbackend.onrender.com/api/rides/${rideId}/logs`);
     return res.data;
   },
 };
@@ -190,7 +190,7 @@ const RideCard = ({ ride, onTrack, onChat, getStatusBadge, onClick }) => {
           <div className="flex gap-2">
             {ride.status === "ongoing" && (
               <button
-                className="flex-1 md:flex-none rounded-lg bg-emerald-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-emerald-700"
+                className="flex-1 md:flex-none rounded-lg bg-orange-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-700"
                 onClick={() => onTrack(ride)}
               >
                 Track
@@ -825,7 +825,7 @@ export default function RidesManagement() {
 
   const handleStatusChange = async (rideId, newStatus) => {
     try {
-      const response = await axios.put(`https://panalsbackend-production.up.railway.app/api/rides/${rideId}/status`, {
+      const response = await axios.put(`https://panalsbackend.onrender.com/api/rides/${rideId}/status`, {
         status: newStatus,
       });
 
@@ -921,7 +921,7 @@ export default function RidesManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white transition-colors duration-300">
+    <div className="min-h-screen bg-black text-gray-800 dark:text-white transition-colors duration-300">
       <ToastContainer />
 
       {/* Page Content */}
@@ -968,8 +968,8 @@ export default function RidesManagement() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-black rounded-xl shadow-lg p-6 w-full max-w-md">
               <h2 className="text-xl font-bold mb-4">Trip Details</h2>
-              <p><span className="font-semibold">Driver Name:</span> {selectedRide.driver?.name || 'N/A'}</p>
-              <p><span className="font-semibold">Driver Phone:</span> {selectedRide.driver?.phone || 'N/A'}</p>
+              <p><span className="font-semibold">Driver Name:</span> {selectedRide.driver?.name || 'Mehul Sem'}</p>
+              <p><span className="font-semibold">Driver Phone:</span> {selectedRide.driver?.phone || '+912564725698'}</p>
               <hr className="my-2" />
               <p><span className="font-semibold">Request Time:</span> {new Date(selectedRide.requestTime).toLocaleString()}</p>
               <p><span className="font-semibold">Accept Time:</span> {new Date(selectedRide.acceptTime).toLocaleString()}</p>

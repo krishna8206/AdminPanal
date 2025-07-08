@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'https://panalsbackend-production.up.railway.app/api'; // Update with your backend URL
+const API_BASE_URL = 'https://panalsbackend.onrender.com/api'; // Update with your backend URL
 
 const api = axios.create({
   baseURL: API_BASE_URL,

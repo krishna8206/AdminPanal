@@ -267,15 +267,15 @@ export default function ReportsEarning() {
       })
 
       const [summaryResponse, earningsResponse, driverResponse] = await Promise.all([
-        fetch(`https://panalsbackend-production.up.railway.app/api/reports/summary?${params}`).catch((e) => {
+        fetch(`https://panalsbackend.onrender.com/api/reports/summary?${params}`).catch((e) => {
           console.error("Summary API error:", e)
           return null
         }),
-        fetch(`https://panalsbackend-production.up.railway.app/api/reports/earnings?${params}`).catch((e) => {
+        fetch(`https://panalsbackend.onrender.com/api/reports/earnings?${params}`).catch((e) => {
           console.error("Earnings API error:", e)
           return null
         }),
-        fetch(`https://panalsbackend-production.up.railway.app/api/reports/driver-performance?${params}`).catch((e) => {
+        fetch(`https://panalsbackend.onrender.com/api/reports/driver-performance?${params}`).catch((e) => {
           console.error("Driver API error:", e)
           return null
         }),
@@ -329,7 +329,7 @@ export default function ReportsEarning() {
 
     console.log("🔌 Initializing Socket.IO connection...")
 
-    const newSocket = io("https://panalsbackend-production.up.railway.app", {
+    const newSocket = io("https://panalsbackend.onrender.com", {
       transports: ["websocket", "polling"],
       timeout: 20000,
       reconnection: true,
@@ -609,7 +609,7 @@ export default function ReportsEarning() {
   }
 
   return (
-    <div className="p-4 md:p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-4 md:p-6 bg-black min-h-screen">
       <style jsx global>{`
         .react-datepicker {
           font-family: 'Inter', sans-serif;
@@ -802,7 +802,7 @@ export default function ReportsEarning() {
               <button
                 onClick={() => handleTimeRangeChange("day")}
                 className={`px-3 py-1 rounded-md text-sm ${timeRange === "day"
-                  ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
+                  ? "bg-orange-600 text-white"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                   }`}
               >
@@ -811,7 +811,7 @@ export default function ReportsEarning() {
               <button
                 onClick={() => handleTimeRangeChange("week")}
                 className={`px-3 py-1 rounded-md text-sm ${timeRange === "week"
-                  ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
+                  ? "bg-orange-600 text-white"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                   }`}
               >
@@ -820,7 +820,7 @@ export default function ReportsEarning() {
               <button
                 onClick={() => handleTimeRangeChange("month")}
                 className={`px-3 py-1 rounded-md text-sm ${timeRange === "month"
-                  ? "bg-gradient-to-r from-green-500 to-green-600 text-white"
+                  ? "bg-orange-600 text-white"
                   : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                   }`}
               >
@@ -880,7 +880,7 @@ export default function ReportsEarning() {
 
                   <button
                     onClick={handleExport}
-                    className="flex items-center px-3 py-1 rounded-md bg-gradient-to-r from-green-500 to-green-600 text-white text-sm hover:from-green-600 hover:to-green-700"
+                    className="flex items-center px-3 py-1 rounded-md bg-orange-600 text-white text-sm hover:from-green-600 hover:to-green-700"
                     disabled={!hasData}
                   >
                     <FiDownload className="mr-1" /> Export
@@ -896,7 +896,7 @@ export default function ReportsEarning() {
           <button
             onClick={() => handleTabChange("earnings")}
             className={`px-4 py-2 font-medium ${activeTab === "earnings"
-              ? "text-green-500 border-b-2 border-green-500"
+              ? "text-orange-500 border-b-2 border-orange-500"
               : "text-gray-500 dark:text-gray-400"
               }`}
           >
@@ -904,7 +904,7 @@ export default function ReportsEarning() {
           </button>
           <button
             onClick={() => handleTabChange("rides")}
-            className={`px-4 py-2 font-medium ${activeTab === "rides" ? "text-green-500 border-b-2 border-green-500" : "text-gray-500 dark:text-gray-400"
+            className={`px-4 py-2 font-medium ${activeTab === "rides" ? "text-orange-500 border-b-2 border-orange-500" : "text-gray-500 dark:text-gray-400"
               }`}
           >
             Trips
@@ -912,7 +912,7 @@ export default function ReportsEarning() {
           <button
             onClick={() => handleTabChange("drivers")}
             className={`px-4 py-2 font-medium ${activeTab === "drivers"
-              ? "text-green-500 border-b-2 border-green-500"
+              ? "text-orange-500 border-b-2 border-orange-500"
               : "text-gray-500 dark:text-gray-400"
               }`}
           >

@@ -183,14 +183,12 @@ export default function Header({ toggleSidebar, onLogout, userEmail }) {
   const unreadMessagesCount = messages.filter((m) => m.unread).length;
 
   return (
-    <div className="h-[8%] w-full border-b-2 border-gray-400/20 dark:border-gray-600/30 flex items-center justify-between px-3 py-5 bg-white dark:bg-gray-900 transition-colors duration-300">
+    <div className="h-[8%] w-full border-b-2 border-gray-400/20 dark:border-gray-600/30 flex items-center justify-between px-3 py-5 bg-black transition-colors duration-300">
       {/* Left Side - Logo and Menu */}
       <div className="LeftSide flex h-full items-center">
-        <div className="GreenDot h-8 w-8 md:h-8 md:w-8 lg:h-10 lg:w-10 bg-gradient-to-b from-green-400 via-green-600 to-green-800 rounded-full flex items-center justify-center text-white font-bold ">
-          i
-        </div>
-        <h4 className="text-gray-800 dark:text-white font-bold sm:block hidden ms-2 text-2xl transition-colors duration-300">
-          Admin Panal IdharUdhar
+        <img src="./logo.png" width="100px" alt="" />
+        <h4 className="text-white font-bold sm:block hidden ms-2 text-2xl transition-colors duration-300">
+          Admin Panal
         </h4>
         <button
           className="MenuToggle-button h-8 w-8 bg-green-600/30 rounded-full flex justify-center items-center text-green-700 dark:text-green-400 ms-4 md:hidden hover:bg-green-600/50 transition-colors duration-200"
@@ -232,24 +230,17 @@ export default function Header({ toggleSidebar, onLogout, userEmail }) {
           )}
         </div>
 
-        {/* Theme Toggle */}
-        <button
-          onClick={toggleTheme}
-          className="h-7 w-7 md:h-8 md:w-8 lg:h-9 lg:w-9 flex justify-center items-center text-green-500 rounded-full relative hover:bg-green-500/20 hover:text-green-600 transition-all duration-200 text-xs md:text-sm cursor-pointer"
-          title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
-        >
-          {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </button>
+        
 
         {/* Notifications Dropdown */}
         <div className="relative">
           <div
-            className="notifications h-7 w-7 md:h-8 md:w-8 lg:h-9 lg:w-9 flex justify-center items-center text-green-500 rounded-full relative hover:bg-green-500/20 hover:text-green-600 transition-all duration-200 text-xs md:text-sm cursor-pointer"
+            className="notifications h-7 w-7 md:h-8 md:w-8 lg:h-9 lg:w-9 flex justify-center items-center text-orange-500 rounded-full relative text-xs md:text-sm cursor-pointer"
             onClick={toggleNotifications}
           >
             <i className="far fa-bell"></i>
             {unreadNotificationsCount > 0 && (
-              <div className="NotificationDot absolute -right-1 top-0 h-2 w-2 md:h-3 md:w-3 bg-green-400 rounded-full text-[8px] md:text-[10px] text-white flex items-center justify-center">
+              <div className="NotificationDot absolute -right-1 top-0 h-2 w-2 md:h-3 md:w-3 bg-orange-600 rounded-full text-[8px] md:text-[10px] text-white flex items-center justify-center">
                 {unreadNotificationsCount}
               </div>
             )}
@@ -263,7 +254,7 @@ export default function Header({ toggleSidebar, onLogout, userEmail }) {
             >
               <div className="p-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
                 <h3 className="text-gray-800 dark:text-white font-semibold">Notifications</h3>
-                <button onClick={markAllAsRead} className="text-green-400 text-xs hover:underline">
+                <button onClick={markAllAsRead} className="text-orange-600 text-xs hover:underline">
                   Mark all as read
                 </button>
               </div>
@@ -274,14 +265,14 @@ export default function Header({ toggleSidebar, onLogout, userEmail }) {
                   notifications.map((notification) => (
                     <div
                       key={notification.id}
-                      className={`p-3 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-150 flex items-start ${!notification.read ? "bg-green-50 dark:bg-gray-700/30" : ""}`}
+                      className={`p-3 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-150 flex items-start ${!notification.read ? "bg-orange-50 dark:bg-gray-700/30" : ""}`}
                       onClick={() => markNotificationAsRead(notification.id)}
                     >
                       <div
-                        className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${notification.read ? "bg-gray-200 dark:bg-gray-600/30" : "bg-green-500/20"} mr-3`}
+                        className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center ${notification.read ? "bg-gray-200 dark:bg-gray-600/30" : "bg-orange-500/20"} mr-3`}
                       >
                         <i
-                          className={`fas ${notification.icon} ${notification.read ? "text-gray-500 dark:text-gray-400" : "text-green-400"} text-sm`}
+                          className={`fas ${notification.icon} ${notification.read ? "text-gray-500 dark:text-gray-400" : "text-orange-600"} text-sm`}
                         ></i>
                       </div>
                       <div className="flex-1 min-w-0">
@@ -293,14 +284,14 @@ export default function Header({ toggleSidebar, onLogout, userEmail }) {
                         <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">{notification.time}</p>
                       </div>
                       {!notification.read && (
-                        <div className="ml-2 w-2 h-2 bg-green-400 rounded-full flex-shrink-0"></div>
+                        <div className="ml-2 w-2 h-2 bg-orange-600 rounded-full flex-shrink-0"></div>
                       )}
                     </div>
                   ))
                 )}
               </div>
               <div className="p-3 text-center border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-lg">
-                <button className="text-green-400 text-sm hover:underline font-medium">View All Notifications</button>
+                <button className="text-orange-600 text-sm hover:underline font-medium">View All Notifications</button>
               </div>
             </div>
           )}
@@ -309,12 +300,12 @@ export default function Header({ toggleSidebar, onLogout, userEmail }) {
         {/* Messages Dropdown */}
         <div className="relative">
           <div
-            className="Messages h-7 w-7 md:h-8 md:w-8 lg:h-9 lg:w-9 flex justify-center items-center text-green-500 rounded-full relative hover:bg-green-500/20 hover:text-green-600 transition-all duration-200 text-xs md:text-sm cursor-pointer"
+            className="Messages h-7 w-7 md:h-8 md:w-8 lg:h-9 lg:w-9 flex justify-center items-center text-orange-600 rounded-full relative text-xs md:text-sm cursor-pointer"
             onClick={toggleMessages}
           >
             <i className="far fa-comment-alt"></i>
             {unreadMessagesCount > 0 && (
-              <div className="NotificationDot absolute -right-1 top-0 h-2 w-2 md:h-3 md:w-3 bg-green-400 rounded-full text-[8px] md:text-[10px] text-white flex items-center justify-center">
+              <div className="NotificationDot absolute -right-1 top-0 h-2 w-2 md:h-3 md:w-3 bg-orange-400 rounded-full text-[8px] md:text-[10px] text-white flex items-center justify-center">
                 {unreadMessagesCount}
               </div>
             )}
@@ -330,13 +321,13 @@ export default function Header({ toggleSidebar, onLogout, userEmail }) {
                 <h3 className="text-gray-800 dark:text-white font-semibold">Messages</h3>
                 <div className="flex mt-2 border-b border-gray-200 dark:border-gray-700 -mx-3">
                   <button
-                    className={`flex-1 py-1 text-xs font-medium ${activeMessageTab === "all" ? "text-green-400 border-b-2 border-green-400" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"}`}
+                    className={`flex-1 py-1 text-xs font-medium ${activeMessageTab === "all" ? "text-orange-600 border-b-2 border-orange-600" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"}`}
                     onClick={() => setActiveMessageTab("all")}
                   >
                     All Messages
                   </button>
                   <button
-                    className={`flex-1 py-1 text-xs font-medium ${activeMessageTab === "unread" ? "text-green-400 border-b-2 border-green-400" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"}`}
+                    className={`flex-1 py-1 text-xs font-medium ${activeMessageTab === "unread" ? "text-orange-600 border-b-2 border-orange-600" : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white"}`}
                     onClick={() => setActiveMessageTab("unread")}
                   >
                     Unread ({unreadMessagesCount})
@@ -350,10 +341,10 @@ export default function Header({ toggleSidebar, onLogout, userEmail }) {
                   filteredMessages.map((message) => (
                     <div
                       key={message.id}
-                      className={`p-3 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-150 flex items-start ${message.unread ? "bg-blue-50 dark:bg-gray-700/30" : ""}`}
+                      className={`p-3 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-150 flex items-start ${message.unread ? "bg-orange-50 dark:bg-gray-700/30" : ""}`}
                       onClick={() => markMessageAsRead(message.id)}
                     >
-                      <div className="flex-shrink-0 h-8 w-8 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 flex items-center justify-center text-white text-xs font-medium mr-3">
+                      <div className="flex-shrink-0 h-8 w-8 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-medium mr-3">
                         {message.avatar}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -369,13 +360,13 @@ export default function Header({ toggleSidebar, onLogout, userEmail }) {
                         </div>
                         <p className="text-gray-600 dark:text-gray-300 text-xs mt-1 truncate">{message.text}</p>
                       </div>
-                      {message.unread && <div className="ml-2 w-2 h-2 bg-green-400 rounded-full flex-shrink-0"></div>}
+                      {message.unread && <div className="ml-2 w-2 h-2 bg-orange-600 rounded-full flex-shrink-0"></div>}
                     </div>
                   ))
                 )}
               </div>
               <div className="p-3 text-center border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 rounded-b-lg">
-                <button className="text-green-400 text-sm hover:underline font-medium">View All Messages</button>
+                <button className="text-orange-600 text-sm hover:underline font-medium">View All Messages</button>
               </div>
             </div>
           )}
@@ -384,7 +375,7 @@ export default function Header({ toggleSidebar, onLogout, userEmail }) {
         {/* Profile Dropdown */}
         <div className="relative">
           <div
-            className="profileButton h-8 w-8 md:h-8 md:w-8 lg:h-10 lg:w-10 rounded-full bg-gradient-to-r from-green-400 via-green-600 to-green-800 text-white flex items-center justify-center font-semibold hover:bg-gradient-to-l transition-all duration-700 text-xs md:text-sm lg:text-base cursor-pointer shadow-lg hover:shadow-green-500/20"
+            className="profileButton h-8 w-8 md:h-8 md:w-8 lg:h-10 lg:w-10 rounded-full bg-orange-600 text-white flex items-center justify-center font-semibold hover:bg-gradient-to-l transition-all duration-700 text-xs md:text-sm lg:text-base cursor-pointer shadow-lg hover:shadow-green-500/20"
             onClick={toggleProfile}
           >
             {getInitials(email)}
@@ -398,7 +389,7 @@ export default function Header({ toggleSidebar, onLogout, userEmail }) {
             >
               <div className="p-4 border-b border-gray-200 dark:border-gray-700">
                 <div className="flex items-center">
-                  <div className="h-10 w-10 rounded-full bg-gradient-to-r from-green-400 via-green-600 to-green-800 text-white flex items-center justify-center font-semibold shadow-md">
+                  <div className="h-10 w-10 rounded-full bg-orange-600 text-white flex items-center justify-center font-semibold shadow-md">
                     {getInitials(email)}
                   </div>
                   <div className="ml-3">

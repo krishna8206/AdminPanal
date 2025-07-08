@@ -1,4 +1,4 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL || "https://panalsbackend-production.up.railway.app/api"
+const API_BASE_URL = process.env.REACT_APP_API_URL || "https://panalsbackend.onrender.com/api"
 
 class ApiService {
   async request(endpoint, options = {}) {

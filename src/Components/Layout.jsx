@@ -173,7 +173,7 @@ export default function Layout() {
               <div className="absolute bottom-[20%] right-[10%] w-32 h-32 rounded-full bg-green-500 opacity-5 blur-2xl" />
               <h1 className="text-5xl font-bold mb-4 leading-tight z-10">
                 Fast, Easy & <br />
-                <span className="text-green-400">Secure Rides</span>
+                <span className="text-green-400">Secure Trips</span>
               </h1>
               <p className="text-gray-400 text-lg mb-6 z-10">
                 Car, Auto, Bike & Porter services – all in one place.

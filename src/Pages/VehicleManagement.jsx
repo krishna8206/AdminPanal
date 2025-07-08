@@ -8,7 +8,7 @@ import { GiCargoCrate } from "react-icons/gi"
 import socket from "../utils/socket"
 
 // Configure axios defaults
-const API_BASE_URL = process.env.REACT_APP_API_URL || "https://panalsbackend-production.up.railway.app/api"
+const API_BASE_URL = process.env.REACT_APP_API_URL || "https://panalsbackend.onrender.com/api"
 const api = axios.create({
   baseURL: API_BASE_URL,
   timeout: 10000,
@@ -55,7 +55,7 @@ export default function VehicleManagement() {
       return true
     } catch (error) {
       console.error("❌ Server connection test failed:", error)
-      setErrorMessage("Cannot connect to server. Please check if the server is running on https://panalsbackend-production.up.railway.app")
+      setErrorMessage("Cannot connect to server. Please check if the server is running on https://panalsbackend.onrender.com")
       return false
     }
   }, [])
@@ -598,7 +598,7 @@ handleManualReconnect();
       case "Courier Delivery":
         return (
           <span className="px-2 py-1 text-xs rounded-full bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300">
-            Courier
+            Parcel
           </span>
         )
       default:
@@ -792,7 +792,7 @@ handleManualReconnect();
   )
 
   return (
-    <div className="h-[90vh] w-full bg-gray-100 dark:bg-gray-900 flex flex-col overflow-y-scroll">
+    <div className="h-[90vh] w-full bg-black flex flex-col overflow-y-scroll">
       <div className="flex-1 flex flex-col p-4">
         {/* Enhanced Connection Status */}
         <div className="mb-2 flex items-center justify-between">
@@ -874,7 +874,7 @@ handleManualReconnect();
               </button>
               <button
                 onClick={handleAddVehicle}
-                className="flex items-center gap-2 px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                className="flex items-center gap-2 px-3 py-2 bg-orange-600 text-white rounded-lg  transition-colors"
               >
                 <FaPlus /> Add Vehicle
               </button>
@@ -1186,7 +1186,7 @@ handleManualReconnect();
                     >
                       <option value="Ride">Trip</option>
                       <option value="Food Delivery">Food Delivery</option>
-                      <option value="Courier Delivery">Courier Delivery</option>
+                      <option value="Courier Delivery">Parcel Delivery</option>
                     </select>
                   </div>
                 </div>
@@ -1310,7 +1310,7 @@ handleManualReconnect();
                 <button
                   onClick={handleSubmitVehicle}
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Saving..." : editMode ? "Update Vehicle" : "Add Vehicle"}
                 </button>
