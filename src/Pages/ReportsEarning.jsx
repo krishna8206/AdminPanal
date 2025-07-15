@@ -861,7 +861,7 @@ export default function ReportsEarning() {
                   onChange={(e) => setDriverFilter(e.target.value)}
                   className="border border-gray-300 dark:border-gray-600 rounded-md sm:px-3 px-2 py-1 bg-white dark:bg-gray-700 text-sm dark:text-white"
                 >
-                  <option value="all">All Drivers</option>
+                  <option value="all">All Riders</option>
                   {summaryData.drivers?.map((driver) => (
                     <option key={driver.id} value={driver.id}>
                       {driver.name}
@@ -916,7 +916,7 @@ export default function ReportsEarning() {
               : "text-gray-500 dark:text-gray-400"
               }`}
           >
-            Drivers
+            Riders
           </button>
         </div>
 
@@ -1114,7 +1114,7 @@ export default function ReportsEarning() {
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-start">
                   <div>
-                    <p className="text-gray-500 dark:text-gray-400 text-sm">Driver Expense</p>
+                    <p className="text-gray-500 dark:text-gray-400 text-sm">Rider Expense</p>
                     <p className="text-2xl font-bold text-gray-800 dark:text-white">
                       {formatCurrency(totalDriverExpense)}
                     </p>
@@ -1385,7 +1385,7 @@ export default function ReportsEarning() {
               <div className="space-y-6">
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
                   <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-                    Driver Earnings Distribution
+                    Rider Earnings Distribution
                   </h2>
                   <div className="h-80">
                     {isLoading ? (
@@ -1413,13 +1413,13 @@ export default function ReportsEarning() {
                         </PieChart>
                       </ResponsiveContainer>
                     ) : (
-                      <EmptyChartState message="No driver data available" />
+                      <EmptyChartState message="No rider data available" />
                     )}
                   </div>
                 </div>
 
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 border border-gray-200 dark:border-gray-700">
-                  <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Driver Performance</h2>
+                  <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">Rider Performance</h2>
                   <div className="overflow-x-auto">
                     {isLoading ? (
                       <TableSkeleton />
@@ -1428,7 +1428,7 @@ export default function ReportsEarning() {
                         <thead className="bg-gray-50 dark:bg-gray-800">
                           <tr>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                              Driver
+                              Rider
                             </th>
                             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                               Trip
@@ -1461,7 +1461,7 @@ export default function ReportsEarning() {
                         </tbody>
                       </table>
                     ) : (
-                      <EmptyChartState message="No driver performance data available" />
+                      <EmptyChartState message="No rider performance data available" />
                     )}
                   </div>
                 </div>

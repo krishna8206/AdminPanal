@@ -155,7 +155,7 @@ export default function DriverManagementDashboard() {
       "Name",
       "Email",
       "Phone",
-      "Driver Type",
+      "Rider Type",
       "Vehicle Type",
       "License Plate",
       "Status",
@@ -163,7 +163,7 @@ export default function DriverManagementDashboard() {
       "Rating",
       "Completed Trips",
       "Join Date",
-      "Primary Driver",
+      "Primary Rider",
       "Location (Lat)",
       "Location (Lng)",
     ]
@@ -201,7 +201,7 @@ export default function DriverManagementDashboard() {
       const dataToExport = filteredDrivers.length > 0 ? filteredDrivers : drivers
 
       if (dataToExport.length === 0) {
-        showNotification("error", "No driver data to export")
+        showNotification("error", "No  data rider to export")
         return
       }
 
@@ -225,7 +225,7 @@ export default function DriverManagementDashboard() {
         link.click()
         document.body.removeChild(link)
 
-        showNotification("success", `Driver data exported successfully! (${dataToExport.length} records)`)
+        showNotification("success", `Rider data exported successfully! (${dataToExport.length} records)`)
       }
     } catch (error) {
       showNotification("error", `Failed to export data: ${error.message}`)
@@ -757,7 +757,7 @@ export default function DriverManagementDashboard() {
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">
-            Driver Management Dashboard
+            Rider Management Dashboard
           </h1>
           <p className="text-gray-600 dark:text-gray-400 text-lg">
             Manage primary drivers, sub-drivers, and their vehicle information
@@ -850,7 +850,7 @@ export default function DriverManagementDashboard() {
           <div className="bg-gradient-to-br from-blue-500/10 to-blue-600/10 dark:from-blue-800/20 dark:to-blue-900/20 backdrop-blur-sm rounded-2xl p-6 text-gray-800 dark:text-white shadow-xl border border-white/10">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-blue-500 dark:text-blue-300 text-sm font-medium">Total Drivers</p>
+                <p className="text-blue-500 dark:text-blue-300 text-sm font-medium">Total Riders</p>
                 <p className="text-3xl font-bold">{stats.totalDrivers || 0}</p>
               </div>
               <Users className="w-12 h-12 text-blue-400 dark:text-blue-200" />
@@ -859,7 +859,7 @@ export default function DriverManagementDashboard() {
           <div className="bg-gradient-to-br from-green-500/10 to-green-600/10 dark:from-green-800/20 dark:to-green-900/20 backdrop-blur-sm rounded-2xl p-6 text-gray-800 dark:text-white shadow-xl border border-white/10">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-green-500 dark:text-green-300 text-sm font-medium">Active Drivers</p>
+                <p className="text-green-500 dark:text-green-300 text-sm font-medium">Active Riders</p>
                 <p className="text-3xl font-bold">{stats.activeDrivers || 0}</p>
               </div>
               <Activity className="w-12 h-12 text-green-400 dark:text-green-200" />
@@ -893,14 +893,14 @@ export default function DriverManagementDashboard() {
             disabled={isLoading}
           >
             <Plus className="w-5 h-5 mr-3" />
-            Onboard New Driver
+            Onboard New Rider
           </button>
 
           {/* CSV Download Button */}
           <button
             onClick={downloadCSV}
             disabled={isDownloading || drivers.length === 0}
-            className="bg-gradient-to-r from-blue-500 to-blue-600 px-8 py-4 rounded-xl flex items-center font-semibold text-white shadow-lg transform hover:scale-103 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            className="bg-orange-600 hover:bg-orange-700 px-8 py-4 rounded-xl flex items-center font-semibold text-white shadow-lg transform hover:scale-103 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           >
             {isDownloading ? (
               <>
@@ -953,25 +953,25 @@ export default function DriverManagementDashboard() {
         </div>
 
         {/* Enhanced Drivers Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-xl">
-          <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
-            <table className="w-full">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+          <div className="w-full overflow-auto max-w-full scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 dark:scrollbar-thumb-gray-600 dark:scrollbar-track-gray-800">
+            <table className="min-w-[1000px] w-full">
               <thead className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-600">
                 <tr>
-                  <th className="px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">
+                  <th className="whitespace-nowrap px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">
                     <button
                       onClick={() => requestSort("name")}
                       className="flex items-center hover:text-green-600 transition-colors"
                     >
-                      Driver {getSortIcon("name")}
+                      Rider {getSortIcon("name")}
                     </button>
                   </th>
-                  <th className="px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">Contact</th>
-                  <th className="px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">Vehicle</th>
-                  <th className="px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">Type</th>
-                  <th className="px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">Status</th>
-                  <th className="px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">KYC</th>
-                  <th className="px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">Actions</th>
+                  <th className="whitespace-nowrap px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">Contact</th>
+                  <th className="whitespace-nowrap px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">Vehicle</th>
+                  <th className="whitespace-nowrap px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">Type</th>
+                  <th className="whitespace-nowrap px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">Status</th>
+                  <th className="whitespace-nowrap px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">KYC</th>
+                  <th className="whitespace-nowrap px-8 py-6 text-left font-semibold text-gray-700 dark:text-gray-200">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -1042,11 +1042,10 @@ export default function DriverManagementDashboard() {
                       <td className="px-8 py-6">
                         <div className="flex flex-col items-start">
                           <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              driver.driverType === "Primary" 
-                                ? "bg-blue-100 text-blue-800" 
+                            className={`px-3 py-1 rounded-full text-xs font-semibold ${driver.driverType === "Primary"
+                                ? "bg-blue-100 text-blue-800"
                                 : "bg-purple-100 text-purple-800"
-                            }`}
+                              }`}
                           >
                             {driver.driverType}
                           </span>
@@ -1102,8 +1101,8 @@ export default function DriverManagementDashboard() {
                           </button>
                           <button
                             onClick={() => openModal("manage", driver)}
-                            className="p-2 text-green-600 hover:bg-green-100 dark:hover:bg-green-900 rounded-lg transition-colors"
-                            title="Edit Driver"
+                            className="p-2 text-white hover:bg-green-100 dark:hover:bg-green-900 rounded-lg transition-colors"
+                            title="Edit Rider"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
@@ -1143,6 +1142,7 @@ export default function DriverManagementDashboard() {
           </div>
         </div>
 
+
         {/* Enhanced Modals */}
         {showModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -1153,9 +1153,9 @@ export default function DriverManagementDashboard() {
                   <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                     {modalType === "admin-verify" && "🔐 Admin Verification Required"}
                     {modalType === "verify-selfie" && `📸 Verify Driver: ${editDriver?.name}`}
-                    {modalType === "onboard" && "➕ Onboard New Driver"}
-                    {modalType === "manage" && `✏ Edit Driver: ${editDriver?.name}`}
-                    {modalType === "view" && `👤 Driver Details: ${selectedDriver?.name}`}
+                    {modalType === "onboard" && "➕ Onboard New Rider"}
+                    {modalType === "manage" && `✏ Edit Rider: ${editDriver?.name}`}
+                    {modalType === "view" && `👤 Rider Details: ${selectedDriver?.name}`}
                   </h3>
                   <button
                     onClick={closeModal}
@@ -1322,9 +1322,9 @@ export default function DriverManagementDashboard() {
                     <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-gray-700">
                       <button
                         onClick={() => openModal("manage", selectedDriver)}
-                        className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-medium hover:from-green-600 hover:to-green-700 transition-all transform hover:scale-105"
+                        className="px-6 py-3 bg-gradient-to-r from-orange-600 text-white rounded-xl font-medium  hover:bg-orange-700 transition-all transform hover:scale-105"
                       >
-                        Edit Driver
+                        Edit Rider
                       </button>
                     </div>
                   </div>
@@ -1514,13 +1514,13 @@ export default function DriverManagementDashboard() {
                         className={`p-4 rounded-lg text-center font-semibold ${formData.driverType === "Primary" ? "bg-orange-600 text-white" : "bg-gray-200 dark:bg-gray-700"}`}
                         onClick={() => setFormData({ ...formData, driverType: "Primary" })}
                       >
-                        Primary Driver
+                        Primary Rider
                       </button>
                       <button
                         className={`p-4 rounded-lg text-center font-semibold ${formData.driverType === "Sub-driver" ? "bg-orange-600 text-white" : "bg-gray-200 dark:bg-gray-700"}`}
                         onClick={() => setFormData({ ...formData, driverType: "Sub-driver" })}
                       >
-                        Sub-driver
+                        Sub-rider
                       </button>
                     </div>
 
@@ -1597,7 +1597,7 @@ export default function DriverManagementDashboard() {
                           onChange={(e) => setFormData({ ...formData, primaryDriver: e.target.value })}
                           className={`w-full p-4 border rounded-xl ${errors.primaryDriver ? "border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700`}
                         >
-                          <option value="">Select Primary Driver</option>
+                          <option value="">Select Primary Rider</option>
                           {primaryDrivers.map((d) => (
                             <option key={d._id} value={d._id}>
                               {d.name}
@@ -1829,7 +1829,7 @@ export default function DriverManagementDashboard() {
                           onClick={handleAddSubDriver}
                           className="mt-2 p-2 bg-orange-600 text-white rounded flex items-center"
                         >
-                          <UserPlus className="w-4 h-4 mr-1" /> Add Sub-driver
+                          <UserPlus className="w-4 h-4 mr-1" /> Add Sub-rider
                         </button>
                       </div>
                     )}
@@ -1846,7 +1846,7 @@ export default function DriverManagementDashboard() {
                         disabled={isLoading}
                         className="px-8 py-3 bg-orange-600  text-white rounded-xl font-medium hover:from-orange-600 hover:to-orange-700 disabled:opacity-50"
                       >
-                        {isLoading ? "Saving..." : "Save Driver"}
+                        {isLoading ? "Saving..." : "Save Rider"}
                       </button>
                     </div>
                   </div>
@@ -1915,7 +1915,7 @@ export default function DriverManagementDashboard() {
                         disabled={isLoading}
                         className="px-8 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 disabled:opacity-50"
                       >
-                        {isLoading ? "Updating..." : "Update Driver"}
+                        {isLoading ? "Updating..." : "Update Rider"}
                       </button>
                     </div>
                   </div>
@@ -1962,5 +1962,5 @@ export default function DriverManagementDashboard() {
         )}
       </div>
     </div>
-    )
-  }
+  )
+}

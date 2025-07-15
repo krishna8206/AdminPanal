@@ -44,7 +44,7 @@ const menuItems = [
       url: "admins",
     },
     {
-      title: "Drivers-Management",
+      title: "Riders-Management",
       icon: "fas fa-taxi",
       url: "drivers"
     },

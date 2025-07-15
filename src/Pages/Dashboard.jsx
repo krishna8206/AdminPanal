@@ -1125,10 +1125,10 @@ export default function Dashboard() {
                 <div className="p-3 border-b border-gray-200 dark:border-gray-700">
                   <h3 className="text-base font-semibold text-gray-800 dark:text-white flex items-center gap-2">
                     <FaUserAlt className="text-orange-600 text-sm" />
-                    Filtered Drivers ({filteredDrivers.length})
+                    Filtered Riders ({filteredDrivers.length})
                   </h3>
                   <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                    {vehicleTypeFilter !== "all" ? `${vehicleTypeFilter} drivers` : "All vehicle types"}
+                    {vehicleTypeFilter !== "all" ? `${vehicleTypeFilter} riders` : "All vehicle types"}
                     {statusFilter !== "all" ? ` - ${statusFilter} status` : ""}
                   </p>  
                 </div>
@@ -1260,7 +1260,7 @@ export default function Dashboard() {
             <div
               className={`rounded-xl shadow-md p-4 md:p-6 hover:shadow-lg dark:hover:shadow-2xl dark:hover:-translate-y-1 transition-all duration-300 ${
                 stats.ridesPercentageChange >= 0
-                  ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
+                  ? "bg-black border border-orange-200 dark:border-orange-800"
                   : "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
               }`}
             >
@@ -1270,7 +1270,7 @@ export default function Dashboard() {
                   <h3
                     className={`text-xl md:text-2xl font-bold ${
                       stats.ridesPercentageChange >= 0
-                        ? "text-green-800 dark:text-green-200"
+                        ? "text-white"
                         : "text-red-800 dark:text-red-200"
                     }`}
                   >
@@ -1279,13 +1279,13 @@ export default function Dashboard() {
                 </div>
                 <div
                   className={`p-2 md:p-3 rounded-full ${
-                    stats.ridesPercentageChange >= 0 ? "bg-green-100 dark:bg-green-900" : "bg-red-100 dark:bg-red-900"
+                    stats.ridesPercentageChange >= 0 ? "bg-orange-600" : "bg-red-100 dark:bg-red-900"
                   }`}
                 >
                   <FaCar
                     className={`text-lg md:text-xl ${
                       stats.ridesPercentageChange >= 0
-                        ? "text-green-500 dark:text-green-300"
+                        ? "text-white"
                         : "text-red-500 dark:text-red-300"
                     }`}
                   />
@@ -1322,11 +1322,11 @@ export default function Dashboard() {
             <div className="bg-white dark:bg-gray-800 rounded-xl shadow-md p-4 md:p-6 hover:shadow-lg dark:hover:shadow-2xl dark:hover:-translate-y-1 transition-all duration-300">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">Total Drivers</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">Total Riders</p>
                   <h3 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-white">{stats.totalDrivers}</h3>
                 </div>
-                <div className="p-2 md:p-3 bg-green-100 dark:bg-green-900 rounded-full">
-                  <FaUserAlt className="text-green-500 dark:text-green-300 text-lg md:text-xl" />
+                <div className="p-2 md:p-3 bg-orange-600 rounded-full">
+                  <FaUserAlt className="text-white text-lg md:text-xl" />
                 </div>
               </div>
               <div className="mt-2 md:mt-4 flex items-center text-xs md:text-sm text-green-600 dark:text-green-400">
@@ -1342,7 +1342,7 @@ export default function Dashboard() {
             <div
               className={`rounded-xl shadow-md p-4 md:p-6 hover:shadow-lg dark:hover:shadow-2xl dark:hover:-translate-y-1 transition-all duration-300 ${
                 stats.incomePercentageChange >= 0
-                  ? "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800"
+                  ? "bg-black border border-orange-200 dark:border-orange-800"
                   : "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800"
               }`}
             >
@@ -1352,7 +1352,7 @@ export default function Dashboard() {
                   <h3
                     className={`text-xl md:text-2xl font-bold ${
                       stats.incomePercentageChange >= 0
-                        ? "text-green-800 dark:text-green-200"
+                        ? "text-white"
                         : "text-red-800 dark:text-red-200"
                     }`}
                   >
@@ -1361,13 +1361,13 @@ export default function Dashboard() {
                 </div>
                 <div
                   className={`p-2 md:p-3 rounded-full ${
-                    stats.incomePercentageChange >= 0 ? "bg-green-100 dark:bg-green-900" : "bg-red-100 dark:bg-red-900"
+                    stats.incomePercentageChange >= 0 ? "bg-orange-600" : "bg-red-100 dark:bg-red-900"
                   }`}
                 >
                   <FaRupeeSign
                     className={`text-lg md:text-xl ${
                       stats.incomePercentageChange >= 0
-                        ? "text-green-500 dark:text-green-300"
+                        ? "text-white"
                         : "text-red-500 dark:text-red-300"
                     }`}
                   />
@@ -1409,8 +1409,8 @@ export default function Dashboard() {
                     {stats.completedRides}
                   </h3>
                 </div>
-                <div className="p-2 md:p-3 bg-green-100 dark:bg-green-900 rounded-full">
-                  <FaCar className="text-green-500 dark:text-green-300 text-lg md:text-xl" />
+                <div className="p-2 md:p-3 bg-orange-600 rounded-full">
+                  <FaCar className="text-white text-lg md:text-xl" />
                 </div>
               </div>
               <div className="mt-2 md:mt-4 flex items-center text-xs md:text-sm text-green-600 dark:text-green-400">
@@ -1755,7 +1755,7 @@ export default function Dashboard() {
                 <h4 className="text-sm font-semibold text-blue-800 dark:text-blue-200 mb-2">Quick Stats</h4>
                 <div className="space-y-1">
                   <div className="flex justify-between items-center">
-                    <span className="text-xs text-orange-400">Active Drivers</span>
+                    <span className="text-xs text-orange-400">Active Riders</span>
                     <span className="text-sm font-medium text-orange-200">
                       {drivers.filter((d) => d.status === "active" || d.status === "idle").length}
                     </span>

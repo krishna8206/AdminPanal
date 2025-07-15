@@ -74,13 +74,13 @@ export default function CustomerSupport() {
       userName: 'Amit Sharma',
       service: 'Trip',
       type: 'Ride',
-      issue: 'Driver took longer route',
+      issue: 'Rider took longer route',
       status: 'pending',
       amount: 245,
       date: '2023-06-15',
       time: '10:30 AM',
       messages: [
-        { sender: 'Amit Sharma', text: 'The driver deliberately took a longer route to increase the fare.', time: '10:35 AM' },
+        { sender: 'Amit Sharma', text: 'The rider deliberately took a longer route to increase the fare.', time: '10:35 AM' },
         { sender: 'Support', text: 'We have received your complaint and are reviewing the route.', time: '10:45 AM' }
       ]
     },
@@ -123,13 +123,13 @@ export default function CustomerSupport() {
       userName: 'Neha Gupta',
       service: 'Trip',
       type: 'Ride',
-      issue: 'Driver was rude',
+      issue: 'Rider was rude',
       status: 'investigating',
       amount: 195,
       date: '2023-06-12',
       time: '1:30 PM',
       messages: [
-        { sender: 'Neha Gupta', text: 'The driver was very rude and unprofessional.', time: '1:35 PM' },
+        { sender: 'Neha Gupta', text: 'The rider was very rude and unprofessional.', time: '1:35 PM' },
         { sender: 'Support', text: 'We take such complaints seriously. Our team is investigating.', time: '2:00 PM' }
       ]
     },

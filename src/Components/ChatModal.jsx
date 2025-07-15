@@ -124,7 +124,7 @@ export const ChatModal = ({
                 <div className="mb-3 text-4xl opacity-40">💬</div>
                 <h3 className="text-base font-bold text-gray-800 dark:text-white mb-2">No messages yet</h3>
                 <p className="text-xs text-gray-600 dark:text-gray-400 max-w-xs">
-                  Start a conversation with the driver or rider
+                  Start a conversation with the rider or rider
                 </p>
               </div>
             )}

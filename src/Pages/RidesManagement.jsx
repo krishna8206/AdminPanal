@@ -104,7 +104,7 @@ const FilterBar = ({ searchTerm, onSearchChange, statusFilter, onStatusChange, o
         <div className="relative">
           <input
             type="text"
-            placeholder="Search by Trip ID, Rider, Driver or Location"
+            placeholder="Search by Trip ID, Rider Location"
             value={searchTerm}
             onChange={(e) => onSearchChange(e.target.value)}
             className="w-full md:w-80 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 pl-10 pr-4 py-2 text-sm text-gray-800 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:border-emerald-500 focus:outline-none focus:ring-1 focus:ring-emerald-500 transition-colors duration-300"
@@ -341,7 +341,7 @@ const TrackingModal = ({ isOpen, onClose, ride, activeTab, onTabChange, getStatu
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <label className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Driver</label>
+                      <label className="text-xs font-medium uppercase text-gray-500 dark:text-gray-400">Rider</label>
                       <div className="flex items-center gap-3">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">
                           {ride.driverName.charAt(0)}
@@ -968,8 +968,8 @@ export default function RidesManagement() {
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div className="bg-black rounded-xl shadow-lg p-6 w-full max-w-md">
               <h2 className="text-xl font-bold mb-4">Trip Details</h2>
-              <p><span className="font-semibold">Driver Name:</span> {selectedRide.driver?.name || 'Mehul Sem'}</p>
-              <p><span className="font-semibold">Driver Phone:</span> {selectedRide.driver?.phone || '+912564725698'}</p>
+              <p><span className="font-semibold">Rider Name:</span> {selectedRide.driver?.name || 'Mehul Sem'}</p>
+              <p><span className="font-semibold">Rider Phone:</span> {selectedRide.driver?.phone || '+912564725698'}</p>
               <hr className="my-2" />
               <p><span className="font-semibold">Request Time:</span> {new Date(selectedRide.requestTime).toLocaleString()}</p>
               <p><span className="font-semibold">Accept Time:</span> {new Date(selectedRide.acceptTime).toLocaleString()}</p>

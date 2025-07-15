@@ -1381,7 +1381,7 @@ handleManualReconnect();
 
                 {selectedVehicle.assignedDriver && (
                   <div className="border-t pt-4">
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Assigned Driver</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Assigned Rider</p>
                     <div className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
                       <p className="font-medium text-gray-800 dark:text-white">{selectedVehicle.assignedDriver.name}</p>
                       <p className="text-sm text-gray-600 dark:text-gray-300">{selectedVehicle.assignedDriver.phone}</p>

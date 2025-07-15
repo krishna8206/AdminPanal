@@ -74,7 +74,7 @@ export default function LiveTracking() {
       <div className="p-6">
         <div className="mb-6">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Live Tracking</h2>
-          <p className="text-gray-600 dark:text-gray-400">Real-time tracking of drivers and ongoing trips</p>
+          <p className="text-gray-600 dark:text-gray-400">Real-time tracking of riders and ongoing trips</p>
         </div>
 
 
@@ -96,7 +96,7 @@ export default function LiveTracking() {
             <div className="flex items-center space-x-2">
               <User className="w-5 h-5 text-orange-600" />
               <div>
-                <p className="text-gray-600 dark:text-gray-400 text-sm">Total Drivers</p>
+                <p className="text-gray-600 dark:text-gray-400 text-sm">Total Riders</p>
                 <p className="text-gray-800 dark:text-white text-xl font-bold">{drivers.length}</p>
               </div>
             </div>
@@ -205,7 +205,7 @@ export default function LiveTracking() {
           {/* Driver List */}
           <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Active Drivers</h3>
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white">Active Riders</h3>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-500 dark:bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-green-500 dark:text-green-400 text-sm">
